@@ -11,10 +11,10 @@ import {
 } from '@mui/material';
 const FeaturedProducts = () => {
     const products = [
-        { id: 1, name: 'Lotus Pooja Thali', price: '₹1,499 - ₹2,499', image: '/api/placeholder/300/300' },
-        { id: 2, name: 'Custom Resin Rakhi', price: '₹399 - ₹699', image: '/api/placeholder/300/300' },
-        { id: 3, name: 'Ganesh Ji Artifact', price: '₹999 - ₹1,999', image: '/api/placeholder/300/300' },
-        { id: 4, name: 'Decorative Diya Set', price: '₹799 - ₹1,299', image: '/api/placeholder/300/300' }
+        { id: 1, name: 'Lotus Pooja Thali', price: '₹1,499 - ₹2,499', image: 'src/assets/Screenshot 2025-01-12 144710.png' },
+        { id: 2, name: 'Custom Resin Rakhi', price: '₹399 - ₹699', image: 'src/assets/Screenshot 2025-01-12 144710.png' },
+        { id: 3, name: 'Ganesh Ji Artifact', price: '₹999 - ₹1,999', image: 'src/assets/Screenshot 2025-01-12 144710.png' },
+        { id: 4, name: 'Decorative Diya Set', price: '₹799 - ₹1,299', image: 'src/assets/Screenshot 2025-01-12 144710.png' }
     ];
 
     return (

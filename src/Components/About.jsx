@@ -47,7 +47,7 @@ const About = () => (
                 <Grid item xs={12} md={6}>
                     <Box
                         component="img"
-                        src="/api/placeholder/600/400"
+                        src="src\assets\Screenshot 2025-01-12 144710.png"
                         alt="Workshop"
                         sx={{
                             width: '100%',
