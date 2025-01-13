@@ -1,9 +1,14 @@
 import './App.css'
-import HomePage from './Homepage'
+import HomePage from './Pages/HomePage'
+import { Header, Footer } from './Components/index'
 
 function App() {
   return (
-    <HomePage />
+    <>
+      <Header />
+      <HomePage />
+      <Footer />
+    </>
   )
 }
 

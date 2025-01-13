@@ -1,69 +1,118 @@
 import React from "react";
-import { ArrowRight } from "lucide-react";
 import {
     Box,
     Button,
     Container,
     Paper,
-    Typography
-} from '@mui/material';
-const Hero = () => (
-    <Paper
-        sx={{
-            position: 'relative',
-            height: '100vh',
-            bgcolor: '#fdf6e9',
-            display: 'flex',
-            alignItems: 'center',
-            mt: 8
+    Typography,
+    useMediaQuery,
+    useTheme,
+} from "@mui/material";
 
-        }}
-    >
-        <Container>
-            <Box textAlign="center">
-                <Typography
-                    variant="h2"
-                    component="h1"
-                    sx={{
-                        fontFamily: 'serif',
-                        color: '#814d0b',
-                        mb: 3
-                    }}
-                >
-                    Handmade Resin Creations for Every Occasion
-                </Typography>
-                <Typography
-                    variant="h5"
-                    sx={{
-                        color: '#814d0b',
-                        mb: 4
-                    }}
-                >
-                    Customizable Gifts for Weddings, Birthdays & Events
-                </Typography>
-                <Box display="flex" gap={2} justifyContent="center">
-                    <Button
-                        variant="contained"
-                        size="large"
-                        sx={{ bgcolor: '#c17912', '&:hover': { bgcolor: '#a66910' } }}
-                    >
-                        Shop Now
-                    </Button>
-                    <Button
-                        variant="outlined"
-                        size="large"
+const Hero = () => {
+    const theme = useTheme();
+    const isSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
+
+    return (
+        <Paper
+            sx={{
+                position: "relative",
+                height: "95vh",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                overflow: "hidden",
+                mt: 12,
+                backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url("/assets/Screenshot 2025-01-12 144638.png")`,
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+                color: "#fff",
+                textAlign: "center",
+            }}
+        >
+            <Container>
+                <Box px={2}>
+                    <Typography
+                        variant={isSmallScreen ? "h4" : "h2"}
+                        component="h1"
                         sx={{
-                            color: '#c17912',
-                            borderColor: '#c17912',
-                            '&:hover': { borderColor: '#a66910', color: '#a66910' }
+                            fontFamily: "'Raleway', serif",
+                            fontWeight: "bold",
+                            mb: 3,
+                            letterSpacing: "0.05em",
+                            textShadow: "3px 3px 10px rgba(0,0,0,0.7)",
+                            animation: "fadeIn 1s ease-in-out",
                         }}
                     >
-                        Learn More
-                    </Button>
+                        Handmade Resin Creations for Every Occasion
+                    </Typography>
+                    <Typography
+                        variant="h6"
+                        sx={{
+                            mb: 4,
+                            fontSize: isSmallScreen ? "1rem" : "1.25rem",
+                            fontFamily: "'Raleway', sans-serif",
+                            textShadow: "1px 1px 5px rgba(0,0,0,0.7)",
+                            animation: "fadeIn 1.5s ease-in-out",
+                        }}
+                    >
+                        Customizable Gifts for Weddings, Birthdays & Events
+                    </Typography>
+                    <Box
+                        display="flex"
+                        gap={6}
+                        justifyContent="center"
+                        flexWrap="wrap"
+                        sx={{
+                            animation: "fadeIn 2s ease-in-out",
+                        }}
+                    >
+                        <Button
+                            variant="contained"
+                            size="large"
+                            sx={{
+                                bgcolor: theme.palette.custom.main,
+                                color: "#fff",
+                                px: 4,
+                                py: 1.5,
+                                fontFamily: "'Raleway', sans-serif",
+                                fontSize: "1rem",
+                                borderRadius: "30px",
+                                transition: "all 0.3s ease-in-out",
+                                "&:hover": {
+                                    bgcolor: theme.palette.custom.light,
+                                    transform: "scale(1.05)"
+                                },
+                            }}
+                        >
+                            Shop Now
+                        </Button>
+                        <Button
+                            variant="outlined"
+                            size="large"
+                            sx={{
+                                px: 4,
+                                py: 1.5,
+                                fontSize: "1rem",
+                                fontFamily: "'Raleway', sans-serif",
+                                color: theme.palette.custom.main,
+                                borderRadius: "30px",
+                                borderColor: theme.palette.custom.main,
+                                transition: "all 0.3s ease-in-out",
+                                "&:hover": {
+                                    borderColor: theme.palette.custom.light,
+                                    color: theme.palette.custom.light,
+                                    transform: "scale(1.05)",
+                                },
+                            }}
+                        >
+                            Learn More
+                        </Button>
+                    </Box>
                 </Box>
-            </Box>
-        </Container>
-    </Paper>
-);
+            </Container>
+        </Paper>
+    );
+};
 
 export default Hero;
