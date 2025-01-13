@@ -16,7 +16,7 @@ const Stats = () => {
     ];
 
     return (
-        <Box sx={{ py: 6, bgcolor: '#fff' }}>
+        <Box sx={{ padding: 15, bgcolor: "#fdf6e9" }}>
             <Container>
                 <Grid container spacing={4}>
                     {stats.map((stat) => (

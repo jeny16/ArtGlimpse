@@ -38,7 +38,7 @@ const Features = () => {
   ];
 
   return (
-    <Box sx={{ py: 8 }}>
+    <Box sx={{ padding: "100px", bgcolor: "#fdf6e9" }}>
       <Container>
         <Typography
           variant="h3"
@@ -46,9 +46,8 @@ const Features = () => {
           sx={{
             textAlign: "center",
             mb: 6,
-            fontFamily: "serif",
             color: "#814d0b",
-            fontWeight: 700,
+            fontWeight: 650,
           }}
         >
           WHY CHOOSE US
