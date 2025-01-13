@@ -6,6 +6,7 @@ import Testimonials from '../Components/Testimonials'
 import Features from '../Components/Features'
 import Header from '../Components/Header'
 import Footer from '../Components/Footer'
+import ProductCard from './ProductCard'
 
 export {
     Hero,
@@ -15,5 +16,6 @@ export {
     Testimonials,
     Features,
     Header,
-    Footer
+    Footer,
+    ProductCard
 }
