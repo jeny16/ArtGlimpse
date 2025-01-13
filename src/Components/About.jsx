@@ -78,6 +78,7 @@ const About = () => (
       </Grid>
     </Container>
   </Box>
+
 );
 
 export default About;
