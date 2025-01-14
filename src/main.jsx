@@ -1,14 +1,16 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import './index.css'
-import App from './App.jsx'
-import { ThemeProvider } from '@mui/material/styles';
-import CssBaseline from '@mui/material/CssBaseline'; // Optional: Normalize styles
-import theme from './Styles/theme';
-import HomePage from './Pages/HomePage.jsx';
-import LoginPage from './Pages/LoginPage.jsx';
-import SignupPage from './Pages/SignupPage.jsx';
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import "./index.css";
+import App from "./App.jsx";
+import { ThemeProvider } from "@mui/material/styles";
+import CssBaseline from "@mui/material/CssBaseline"; // Optional: Normalize styles
+import theme from "./Styles/theme";
+import HomePage from "./Pages/HomePage.jsx";
+import LoginPage from "./Pages/LoginPage.jsx";
+import SignupPage from "./Pages/SignupPage.jsx";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import ShopPage from "./Pages/shopPage.jsx";
+import ContactPage from "./Pages/ContactPage.jsx"
 
 const router = createBrowserRouter([
   {
@@ -17,20 +19,23 @@ const router = createBrowserRouter([
     children: [
       {
         path: "/",
-        element: <HomePage />
+        element: <HomePage />,
       },
       {
         path: "/login",
-        element: (
-          <LoginPage />
-        )
+        element: <LoginPage />,
       },
       {
         path: "/signup",
-        element: (
-
-          <SignupPage />
-        )
+        element: <SignupPage />,
+      },
+      {
+        path: "/shop",
+        element: <ShopPage />,
+      },
+      {
+        path: "/contact",
+        element: <ContactPage />,
       },
       // {
       //   path: "/wishlist",
@@ -56,9 +61,9 @@ const router = createBrowserRouter([
       //     <Cart />
       //   )
       // }
-    ]
-  }
-])
+    ],
+  },
+]);
 
 // createRoot(document.getElementById('root')).render(
 //   <StrictMode>
@@ -69,8 +74,7 @@ const router = createBrowserRouter([
 //   </StrictMode>,
 // )
 
-
-const rootElement = document.getElementById('root');
+const rootElement = document.getElementById("root");
 
 if (rootElement) {
   createRoot(rootElement).render(
@@ -82,7 +86,7 @@ if (rootElement) {
       </ThemeProvider>
       {/* </Provider> */}
     </StrictMode>
-  )
+  );
 } else {
   console.error("Root Element Not Found!");
 }
