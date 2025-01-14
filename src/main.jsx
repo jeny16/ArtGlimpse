@@ -9,6 +9,7 @@ import HomePage from './Pages/HomePage.jsx';
 import LoginPage from './Pages/LoginPage.jsx';
 import SignupPage from './Pages/SignupPage.jsx';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import AboutusPage from './Pages/AboutusPage.jsx';
 
 const router = createBrowserRouter([
   {
@@ -28,8 +29,13 @@ const router = createBrowserRouter([
       {
         path: "/signup",
         element: (
-
           <SignupPage />
+        )
+      },
+      {
+        path: "/aboutUs",
+        element: (
+          <AboutusPage />
         )
       },
       // {

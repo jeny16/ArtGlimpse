@@ -1,6 +1,7 @@
 import React from 'react';
-import { Container, Box, Typography, TextField, Button, Divider, Link, useTheme } from '@mui/material';
+import { Container, Box, Typography, Button, Divider, Link, useTheme } from '@mui/material';
 import { useForm } from 'react-hook-form';
+import { FormField } from './index';
 import LoginImg from '/assets/WhatsApp Image 2025-01-14 at 12.19.10 AM.jpeg';
 
 function Login() {
@@ -9,7 +10,6 @@ function Login() {
     const [error, setError] = React.useState(null);
 
     const login = (data) => {
-        // Handle login logic
         console.log(data);
     };
 
@@ -20,64 +20,67 @@ function Login() {
                 display: 'flex',
                 justifyContent: 'center',
                 alignItems: 'center',
-                padding: "85px",
+                paddingTop: '100px',
+                paddingBottom: '64px',
                 backgroundColor: '#f5f5f5',
             }}
         >
             <Container
                 maxWidth="lg"
-                margin={0}
-                padding={0}
+                disableGutters
                 sx={{
                     display: 'flex',
                     flexDirection: { xs: 'column', md: 'row' },
                     boxShadow: { md: 10 },
-                    overflow: 'hidden',
                     backgroundColor: 'white',
-                    minHeight: '85vh',
-                    width: '75%'
+                    minHeight: { xs: '70vh', sm: '85vh' },
+                    width: { xs: '95%', sm: '80%', md: '75%' },
+                    overflow: 'hidden'
                 }}
             >
                 <Box
                     sx={{
-                        display: { xs: 'none', md: 'flex' },
+                        display: { xs: 'none', lg: 'flex' },
                         flex: 1,
                         justifyContent: 'center',
                         alignItems: 'center',
-                        minHeight: '35rem',
                         backgroundImage: `url(${LoginImg})`,
                         backgroundPosition: 'center',
                         backgroundSize: 'cover',
                         backgroundRepeat: 'no-repeat',
-                        backgroundColor: theme.palette.shades.light,
-                        margin: "-12px"
+                        width: '50%',
                     }}
-                >
-                </Box>
+                />
                 <Box
                     sx={{
                         flex: 1,
-                        padding: { xs: 4, md: 6 },
+                        paddingInline: { xs: 5, sm: 4, md: 6 },
                         display: 'flex',
                         flexDirection: 'column',
                         justifyContent: 'center',
-                        alignItems: 'center',
+                        alignItems: 'center'
                     }}
                 >
                     <Typography
                         variant="h4"
                         fontWeight="bold"
                         align="center"
-                        color={theme.palette.custom.highlight}
-                        sx={{ marginBottom: 2 }}
+                        sx={{
+                            marginBottom: 2,
+                            fontSize: { xs: '1.5rem', sm: '2rem', md: '2.25rem' },
+                            color: theme.palette.custom.highlight,
+                        }}
                     >
                         Welcome Back
                     </Typography>
                     <Typography
                         variant="body1"
                         align="center"
-                        color={theme.palette.text.secondary}
-                        sx={{ marginBottom: 4 }}
+                        sx={{
+                            marginBottom: 4,
+                            fontSize: { xs: '0.85rem', sm: '1rem' },
+                            color: theme.palette.text.secondary,
+                        }}
                     >
                         Please log in to your account to continue.
                     </Typography>
@@ -92,77 +95,38 @@ function Login() {
                         sx={{ width: '100%', maxWidth: 400 }}
                     >
                         <Box sx={{ mb: 3 }}>
-                            <TextField
-                                fullWidth
+                            <FormField
                                 label="Email"
                                 placeholder="Enter Your Email"
                                 type="email"
-                                autoComplete="username"
-                                error={!!errors.email}
+                                register={register}
+                                error={errors.email}
                                 helperText={errors.email?.message}
-                                {...register('email', {
+                                autoComplete="username"
+                                validationRules={{
                                     required: 'Email address is Required!',
                                     validate: {
                                         matchPattern: (value) =>
                                             /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(value) ||
                                             'Email address must be a valid address',
                                     },
-                                })}
-                                InputProps={{
-                                    sx: {
-                                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                                            borderColor: theme.palette.custom.highlight,
-                                        },
-                                        '&.Mui-focused .MuiInputBase-input': {
-                                            color: theme.palette.custom.highlight,
-                                        },
-                                    },
-                                }}
-                                InputLabelProps={{
-                                    sx: {
-                                        '&.Mui-focused': {
-                                            color: theme.palette.custom.highlight,
-                                        },
-                                    },
                                 }}
                             />
                         </Box>
-
                         <Box sx={{ mb: 3 }}>
-                            <TextField
-                                fullWidth
+                            <FormField
                                 label="Password"
                                 placeholder="Enter Your Password"
                                 type="password"
-                                autoComplete="current-password"
-                                error={!!errors.password}
+                                register={register}
+                                error={errors.password}
                                 helperText={errors.password?.message}
-                                {...register('password', {
+                                autoComplete="current-password"
+                                validationRules={{
                                     required: 'Password is Required!',
                                     minLength: {
                                         value: 8,
                                         message: 'Password must be at least 8 characters long',
-                                    },
-                                    maxLength: {
-                                        value: 256,
-                                        message: 'Password must be less than 256 characters long',
-                                    },
-                                })}
-                                InputProps={{
-                                    sx: {
-                                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                                            borderColor: theme.palette.custom.highlight,
-                                        },
-                                        '&.Mui-focused .MuiInputBase-input': {
-                                            color: theme.palette.custom.highlight,
-                                        },
-                                    },
-                                }}
-                                InputLabelProps={{
-                                    sx: {
-                                        '&.Mui-focused': {
-                                            color: theme.palette.custom.highlight,
-                                        },
                                     },
                                 }}
                             />
@@ -181,17 +145,10 @@ function Login() {
                             Log in
                         </Button>
                     </Box>
-
                     <Divider sx={{ mt: 4, mb: 4, width: '100%', maxWidth: 400 }}>
                         <Typography color="textSecondary">OR</Typography>
                     </Divider>
-
-                    <Typography
-                        align="center"
-                        variant="body2"
-                        color="textSecondary"
-                        sx={{ mt: 2 }}
-                    >
+                    <Typography align="center" variant="body2" sx={{ mt: 2, color: theme.palette.text.secondary }}>
                         Don&apos;t have an account?&nbsp;
                         <Link
                             href="/signup"
@@ -210,5 +167,3 @@ function Login() {
 }
 
 export default Login;
-
-
