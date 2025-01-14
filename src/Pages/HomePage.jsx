@@ -2,14 +2,14 @@ import React from 'react';
 import {
     Box
 } from '@mui/material';
-import { Hero, FeaturedProducts, About, Stats, Testimonials, Features } from '../Components/index';
+import { Hero, FeaturedProducts, Story, Stats, Testimonials, Features } from '../Components/index';
 
 const HomePage = () => {
     return (
         <Box>
             <Hero />
             <FeaturedProducts />
-            <About />
+            <Story />
             <Stats />
             <Testimonials />
             <Features />

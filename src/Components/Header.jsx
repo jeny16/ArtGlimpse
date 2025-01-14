@@ -71,7 +71,9 @@ const Header = () => {
                     Shop
                 </StyledButton>
             </Box>
-            <StyledButton disableRipple disableElevation>About Us</StyledButton>
+            <Link to="/aboutUs">
+                <StyledButton disableRipple disableElevation>About Us</StyledButton>
+            </Link>
             <StyledButton onClick={() => navigate('/contact')} disableRipple disableElevation>Contact</StyledButton>
         </Box>
     );
@@ -287,12 +289,6 @@ const Header = () => {
             </StyledAppBar>
 
             {renderMobileMenu()}
-            {/* 
-            <AuthDialog
-                open={authDialog.open}
-                onClose={() => setAuthDialog({ ...authDialog, open: false })}
-                isLogin={authDialog.isLogin}
-            /> */}
         </>
     );
 };

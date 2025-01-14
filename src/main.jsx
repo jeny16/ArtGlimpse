@@ -11,6 +11,7 @@ import SignupPage from "./Pages/SignupPage.jsx";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import ShopPage from "./Pages/shopPage.jsx";
 import ContactPage from "./Pages/ContactPage.jsx"
+import AboutusPage from './Pages/AboutusPage.jsx';
 
 const router = createBrowserRouter([
   {
@@ -36,6 +37,12 @@ const router = createBrowserRouter([
       {
         path: "/contact",
         element: <ContactPage />,
+      },
+      {
+        path: "/aboutUs",
+        element: (
+          <AboutusPage />
+        )
       },
       // {
       //   path: "/wishlist",
