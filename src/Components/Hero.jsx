@@ -23,7 +23,7 @@ const Hero = () => {
                 justifyContent: "center",
                 overflow: "hidden",
                 mt: 12,
-                backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url("src/assets/Screenshot 2025-01-12 144638.png")`,
+                backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url("/assets/Screenshot 2025-01-12 144638.png")`,
                 backgroundSize: "cover",
                 backgroundPosition: "center",
                 color: "#fff",

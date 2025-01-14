@@ -2,10 +2,10 @@ import { Heart, Package, Sparkles, Weight } from "lucide-react";
 import { Box, Container, Grid, Typography } from "@mui/material";
 
 const About = () => (
-  <Box sx={{ padding: 8 }}>
+  <Box sx={{ padding: '100px' }}>
     <Container>
       <Grid container spacing={6} alignItems="center">
-        <Grid item xs={12} md={6}>
+        <Grid item xs={12} md={6} sx={{ padding: '25px' }}>
           <Typography
             variant="h3"
             sx={{
@@ -29,7 +29,7 @@ const About = () => (
             the cultural significance while adding a contemporary touch.
           </Typography>
           <Box
-             sx={(theme) => ({
+            sx={(theme) => ({
               display: "flex",
               flexDirection: "row", // default for larger screens
               justifyContent: "space-around",
@@ -69,7 +69,7 @@ const About = () => (
               <Typography variant="h6" sx={{ fontWeight: 400 }}>
                 Custom Orders
               </Typography>
-              <Typography variant="body2" fontWeight={700}  color="text.secondary">
+              <Typography variant="body2" fontWeight={700} color="text.secondary">
                 Your Vision, our Craft
               </Typography>
             </Box>
@@ -94,7 +94,7 @@ const About = () => (
         <Grid item xs={12} md={6}>
           <Box
             component="img"
-            src="src\assets\DALL·E 2025-01-12 19.48.41 - A collection of handcrafted artisanal items displayed beautifully on a wooden table. The items include intricate resin crafts, hand-painted pottery, w.webp"
+            src="/assets/WhatsApp Image 2025-01-14 at 12.19.10 AM.jpeg"
             alt="Workshop"
             sx={{
               width: "100%",

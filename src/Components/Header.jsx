@@ -14,7 +14,7 @@ import {
     IconButton,
     useTheme
 } from '@mui/material';
-import AuthDialog from './AuthDialog';
+import { Link } from 'react-router-dom';
 
 const StyledAppBar = styled(AppBar)(({ theme }) => ({
     backgroundColor: theme.palette.primary.main,
@@ -53,7 +53,6 @@ const StyledDropdownMenu = styled(Menu)(({ theme }) => ({
 
 const Header = () => {
     const [anchorEl, setAnchorEl] = useState(null);
-    const [authDialog, setAuthDialog] = useState({ open: false, isLogin: true });
     const [drawerOpen, setDrawerOpen] = useState(false);
     const theme = useTheme();
     const shopCategories = [
@@ -68,7 +67,9 @@ const Header = () => {
 
     const renderDesktopMenu = () => (
         <Box display="flex" gap={4} alignItems="center" sx={{ display: { xs: 'none', md: 'flex' }, }}>
-            <StyledButton disableRipple disableElevation>Home</StyledButton>
+            <Link to={"/"}>
+                <StyledButton disableRipple disableElevation>Home</StyledButton>
+            </Link>
             <Box position="relative">
                 <StyledButton
                     onClick={(e) => setAnchorEl(e.currentTarget)}
@@ -294,38 +295,37 @@ const Header = () => {
                                     }}
                                 />
                             </Box>
-
-
-                            <Button
-                                variant="outlined"
-                                onClick={() => setAuthDialog({ open: true, isLogin: true })}
-                                sx={{
-                                    color: theme.palette.custom.highlight,
-                                    borderColor: theme.palette.custom.highlight,
-                                    textTransform: 'none',
-                                    fontWeight: 500,
-                                    '&:hover': {
-                                        borderColor: theme.palette.custom.accent,
-                                        backgroundColor: theme.palette.primary.main,
-                                    },
-                                }}
-                            >
-                                Login
-                            </Button>
-
-                            <Button
-                                variant="contained"
-                                onClick={() => setAuthDialog({ open: true, isLogin: false })}
-                                sx={{
-                                    backgroundColor: theme.palette.custom.highlight,
-                                    textTransform: 'none',
-                                    fontWeight: 500,
-                                    color: '#fff',
-                                    '&:hover': { backgroundColor: theme.palette.custom.accent },
-                                }}
-                            >
-                                Sign Up
-                            </Button>
+                            <Link to="/login">
+                                <Button
+                                    variant="outlined"
+                                    sx={{
+                                        color: theme.palette.custom.highlight,
+                                        borderColor: theme.palette.custom.highlight,
+                                        textTransform: 'none',
+                                        fontWeight: 500,
+                                        '&:hover': {
+                                            borderColor: theme.palette.custom.accent,
+                                            backgroundColor: theme.palette.primary.main,
+                                        },
+                                    }}
+                                >
+                                    Login
+                                </Button>
+                            </Link>
+                            <Link to="/signup">
+                                <Button
+                                    variant="contained"
+                                    sx={{
+                                        backgroundColor: theme.palette.custom.highlight,
+                                        textTransform: 'none',
+                                        fontWeight: 500,
+                                        color: '#fff',
+                                        '&:hover': { backgroundColor: theme.palette.custom.accent },
+                                    }}
+                                >
+                                    Sign Up
+                                </Button>
+                            </Link>
                         </Box>
 
                         <IconButton
@@ -339,12 +339,12 @@ const Header = () => {
             </StyledAppBar>
 
             {renderMobileMenu()}
-
+            {/* 
             <AuthDialog
                 open={authDialog.open}
                 onClose={() => setAuthDialog({ ...authDialog, open: false })}
                 isLogin={authDialog.isLogin}
-            />
+            /> */}
         </>
     );
 };
