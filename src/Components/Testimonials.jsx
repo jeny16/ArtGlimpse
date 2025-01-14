@@ -31,14 +31,13 @@ const Testimonials = () => {
   ];
 
   return (
-    <Box sx={{ py: 8, bgcolor: "#fff" }}>
+    <Box sx={{ py: '100px', bgcolor: "#fff" }}>
       <Container>
         <Typography
           variant="h3"
           sx={{
             textAlign: "center",
-            mb: 6,
-            // fontFamily: 'serif',
+            mb: 10,
             fontWeight: 650,
             color: "#814d0b",
           }}
