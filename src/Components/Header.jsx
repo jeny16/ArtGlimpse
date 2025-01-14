@@ -14,7 +14,7 @@ import {
     IconButton,
     useTheme
 } from '@mui/material';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const StyledAppBar = styled(AppBar)(({ theme }) => ({
     backgroundColor: theme.palette.primary.main,
@@ -36,34 +36,21 @@ const StyledButton = styled(Button)(({ theme }) => ({
     },
 }));
 
-const StyledDropdownMenu = styled(Menu)(({ theme }) => ({
-    '& .MuiPaper-root': {
-        backgroundColor: theme.palette.primary.main,
-        color: theme.palette.neutral.light,
-        border: '1px solid #dbd4c7',
-    },
-    '& .MuiMenuItem-root': {
-        fontFamily: 'serif',
-        fontWeight: 500,
-        '&:hover': {
-            backgroundColor: theme.palette.primary.dark,
-        },
-    },
-}));
 
 const Header = () => {
     const [anchorEl, setAnchorEl] = useState(null);
     const [drawerOpen, setDrawerOpen] = useState(false);
     const theme = useTheme();
-    const shopCategories = [
-        'Pooja Thali',
-        'Keychains',
-        'Rakhi',
-        'Home Decor',
-        'Indian God Artifacts',
-        'Jhumkas',
-        'Lotus Diya',
-    ];
+    const navigate = useNavigate();
+    // const shopCategories = [
+    //     'Pooja Thali',
+    //     'Keychains',
+    //     'Rakhi',
+    //     'Home Decor',
+    //     'Indian God Artifacts',
+    //     'Jhumkas',
+    //     'Lotus Diya',
+    // ];
 
     const renderDesktopMenu = () => (
         <Box display="flex" gap={4} alignItems="center" sx={{ display: { xs: 'none', md: 'flex' }, }}>
@@ -72,7 +59,7 @@ const Header = () => {
             </Link>
             <Box position="relative">
                 <StyledButton
-                    onClick={(e) => setAnchorEl(e.currentTarget)}
+                    onClick={() => navigate('/shop')}
                     sx={{
                         display: 'flex',
                         alignItems: 'center',
@@ -83,25 +70,11 @@ const Header = () => {
                 >
                     Shop
                 </StyledButton>
-                <StyledDropdownMenu
-                    anchorEl={anchorEl}
-                    open={Boolean(anchorEl)}
-                    onClose={() => setAnchorEl(null)}
-                >
-                    {shopCategories.map((category) => (
-                        <MenuItem
-                            key={category}
-                            onClick={() => setAnchorEl(null)}
-                        >
-                            {category}
-                        </MenuItem>
-                    ))}
-                </StyledDropdownMenu>
             </Box>
             <Link to="/aboutUs">
                 <StyledButton disableRipple disableElevation>About Us</StyledButton>
             </Link>
-            <StyledButton disableRipple disableElevation>Contact</StyledButton>
+            <StyledButton onClick={() => navigate('/contact')} disableRipple disableElevation>Contact</StyledButton>
         </Box>
     );
 
@@ -164,34 +137,9 @@ const Header = () => {
                         >
                             Shop
                         </StyledButton>
-                        <Box
-                            sx={{
-                                marginLeft: 2,
-                                marginTop: 1,
-                                paddingLeft: '10px',
-                                borderLeft: '2px solid #dbd4c7',
-                            }}
-                        >
-                            {shopCategories.map((category) => (
-                                <Typography
-                                    key={category}
-                                    onClick={() => setDrawerOpen(false)}
-                                    sx={{
-                                        cursor: 'pointer',
-                                        color: theme.palette.neutral.light,
-                                        fontSize: '14px',
-                                        padding: '5px 0',
-                                        '&:hover': { color: theme.palette.custom.highlight },
-                                    }}
-                                >
-                                    {category}
-                                </Typography>
-                            ))}
-                        </Box>
                     </Box>
 
                     <StyledButton
-                        onClick={() => setDrawerOpen(false)}
                         sx={{
                             justifyContent: 'flex-start',
                             fontWeight: 'bold',
