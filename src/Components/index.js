@@ -7,6 +7,8 @@ import Features from '../Components/Features'
 import Header from '../Components/Header'
 import Footer from '../Components/Footer'
 import ProductCard from './ProductCard'
+import Login from './Login'
+import Signup from './Signup'
 
 export {
     Hero,
@@ -17,5 +19,7 @@ export {
     Features,
     Header,
     Footer,
-    ProductCard
+    ProductCard,
+    Login,
+    Signup
 }
