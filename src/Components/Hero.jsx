@@ -8,6 +8,7 @@ import {
     useMediaQuery,
     useTheme,
 } from "@mui/material";
+import { Link } from "react-router-dom";
 
 const Hero = () => {
     const theme = useTheme();
@@ -67,47 +68,51 @@ const Hero = () => {
                             animation: "fadeIn 2s ease-in-out",
                         }}
                     >
-                        <Button
-                            variant="contained"
-                            size="large"
-                            sx={{
-                                bgcolor: theme.palette.custom.main,
-                                color: "#fff",
-                                px: 4,
-                                py: 1.5,
-                                fontFamily: "'Raleway', sans-serif",
-                                fontSize: "1rem",
-                                borderRadius: "30px",
-                                transition: "all 0.3s ease-in-out",
-                                "&:hover": {
-                                    bgcolor: theme.palette.custom.light,
-                                    transform: "scale(1.05)"
-                                },
-                            }}
-                        >
-                            Shop Now
-                        </Button>
-                        <Button
-                            variant="outlined"
-                            size="large"
-                            sx={{
-                                px: 4,
-                                py: 1.5,
-                                fontSize: "1rem",
-                                fontFamily: "'Raleway', sans-serif",
-                                color: theme.palette.custom.main,
-                                borderRadius: "30px",
-                                borderColor: theme.palette.custom.main,
-                                transition: "all 0.3s ease-in-out",
-                                "&:hover": {
-                                    borderColor: theme.palette.custom.light,
-                                    color: theme.palette.custom.light,
-                                    transform: "scale(1.05)",
-                                },
-                            }}
-                        >
-                            Learn More
-                        </Button>
+                        <Link to='/shop'>
+                            <Button
+                                variant="contained"
+                                size="large"
+                                sx={{
+                                    bgcolor: theme.palette.custom.main,
+                                    color: "#fff",
+                                    px: 4,
+                                    py: 1.5,
+                                    fontFamily: "'Raleway', sans-serif",
+                                    fontSize: "1rem",
+                                    borderRadius: "30px",
+                                    transition: "all 0.3s ease-in-out",
+                                    "&:hover": {
+                                        bgcolor: theme.palette.custom.light,
+                                        transform: "scale(1.05)"
+                                    },
+                                }}
+                            >
+                                Shop Now
+                            </Button>
+                        </Link>
+                        <Link to='/aboutUs'>
+                            <Button
+                                variant="outlined"
+                                size="large"
+                                sx={{
+                                    px: 4,
+                                    py: 1.5,
+                                    fontSize: "1rem",
+                                    fontFamily: "'Raleway', sans-serif",
+                                    color: theme.palette.custom.main,
+                                    borderRadius: "30px",
+                                    borderColor: theme.palette.custom.main,
+                                    transition: "all 0.3s ease-in-out",
+                                    "&:hover": {
+                                        borderColor: theme.palette.custom.light,
+                                        color: theme.palette.custom.light,
+                                        transform: "scale(1.05)",
+                                    },
+                                }}
+                            >
+                                Learn More
+                            </Button>
+                        </Link>
                     </Box>
                 </Box>
             </Container>
