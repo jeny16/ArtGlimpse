@@ -1,20 +1,21 @@
 import React, { useState } from 'react';
-import { Search, Menu as MenuIcon, X as CloseIcon } from 'lucide-react';
+import { Search, Menu as MenuIcon, X as CloseIcon, Heart, ShoppingCart, User } from 'lucide-react';
 import {
     AppBar,
     Box,
     Button,
     Container,
     Drawer,
-    Menu,
-    MenuItem,
+    IconButton,
     TextField,
     Typography,
-    styled,
-    IconButton,
-    useTheme
+    useTheme,
+    Badge,
+    Menu,
+    MenuItem,
 } from '@mui/material';
 import { Link, useNavigate } from 'react-router-dom';
+import { styled } from '@mui/material/styles';
 
 const StyledAppBar = styled(AppBar)(({ theme }) => ({
     backgroundColor: theme.palette.primary.main,
@@ -27,6 +28,9 @@ const StyledButton = styled(Button)(({ theme }) => ({
     color: theme.palette.neutral.main,
     fontWeight: 500,
     textTransform: 'none',
+    width: '100%',
+    justifyContent: 'flex-start',
+    padding: '8px 16px',
     '&:hover': {
         backgroundColor: 'transparent',
         color: '#000',
@@ -36,45 +40,85 @@ const StyledButton = styled(Button)(({ theme }) => ({
     },
 }));
 
+const IconWrapper = styled(IconButton)(({ theme }) => ({
+    color: theme.palette.custom.highlight,
+    '&:hover': {
+        backgroundColor: 'transparent',
+        color: theme.palette.custom.accent,
+    },
+}));
 
-const Header = () => {
+const Header = ({ isLoggedIn = false }) => {
     const [anchorEl, setAnchorEl] = useState(null);
     const [drawerOpen, setDrawerOpen] = useState(false);
+    const [profileMenuAnchor, setProfileMenuAnchor] = useState(null);
     const theme = useTheme();
     const navigate = useNavigate();
-    // const shopCategories = [
-    //     'Pooja Thali',
-    //     'Keychains',
-    //     'Rakhi',
-    //     'Home Decor',
-    //     'Indian God Artifacts',
-    //     'Jhumkas',
-    //     'Lotus Diya',
-    // ];
 
-    const renderDesktopMenu = () => (
-        <Box display="flex" gap={4} alignItems="center" sx={{ display: { xs: 'none', md: 'flex' }, }}>
-            <Link to={"/"}>
-                <StyledButton disableRipple disableElevation>Home</StyledButton>
-            </Link>
-            <Box position="relative">
-                <StyledButton
-                    onClick={() => navigate('/shop')}
+    const handleProfileMenuOpen = (event) => {
+        setProfileMenuAnchor(event.currentTarget);
+    };
+
+    const handleProfileMenuClose = () => {
+        setProfileMenuAnchor(null);
+    };
+
+    const handleLogout = () => {
+        handleProfileMenuClose();
+        navigate('/login');
+    };
+
+    const renderAuthButtons = () => (
+        <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 2 }}>
+            <Link to="/login">
+                <Button
+                    variant="outlined"
                     sx={{
-                        display: 'flex',
-                        alignItems: 'center',
+                        color: theme.palette.custom.highlight,
+                        borderColor: theme.palette.custom.highlight,
+                        textTransform: 'none',
+                        fontWeight: 500,
+                        '&:hover': {
+                            borderColor: theme.palette.custom.accent,
+                            backgroundColor: theme.palette.primary.main,
+                        },
                     }}
-
-                    disableRipple
-                    disableElevation
                 >
-                    Shop
-                </StyledButton>
-            </Box>
-            <Link to="/aboutUs">
-                <StyledButton disableRipple disableElevation>About Us</StyledButton>
+                    Login
+                </Button>
             </Link>
-            <StyledButton onClick={() => navigate('/contact')} disableRipple disableElevation>Contact</StyledButton>
+            <Link to="/signup">
+                <Button
+                    variant="contained"
+                    sx={{
+                        backgroundColor: theme.palette.custom.highlight,
+                        textTransform: 'none',
+                        fontWeight: 500,
+                        color: '#fff',
+                        '&:hover': { backgroundColor: theme.palette.custom.accent },
+                    }}
+                >
+                    Sign Up
+                </Button>
+            </Link>
+        </Box>
+    );
+
+    const renderUserIcons = () => (
+        <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 2, alignItems: 'center' }}>
+            <IconWrapper>
+                <Badge badgeContent={3} color="error">
+                    <Heart size={24} />
+                </Badge>
+            </IconWrapper>
+            <IconWrapper>
+                <Badge badgeContent={2} color="error">
+                    <ShoppingCart size={24} />
+                </Badge>
+            </IconWrapper>
+            <IconWrapper >
+                <User size={24} />
+            </IconWrapper>
         </Box>
     );
 
@@ -83,7 +127,7 @@ const Header = () => {
             anchor="right"
             open={drawerOpen}
             onClose={() => setDrawerOpen(false)}
-            sx={{ display: { xs: 'flex', md: 'none' }, }}
+            sx={{ display: { xs: 'flex', md: 'none' } }}
         >
             <Box
                 width="250px"
@@ -93,84 +137,151 @@ const Header = () => {
                     height: '100%',
                     display: 'flex',
                     flexDirection: 'column',
-                    padding: 2,
+                    padding: 0,
                     boxShadow: 'inset 0 0 10px rgba(0, 0, 0, 0.1)',
                 }}
             >
-                <Box display="flex" justifyContent="flex-end">
+                <Box display="flex" justifyContent="flex-end" p={2}>
                     <IconButton onClick={() => setDrawerOpen(false)} sx={{ color: theme.palette.neutral.light }}>
                         <CloseIcon />
                     </IconButton>
                 </Box>
 
-                <Box mt={2} display="flex" flexDirection="column" gap={2}>
-                    <StyledButton
-                        onClick={() => setDrawerOpen(false)}
-                        sx={{
-                            justifyContent: 'flex-start',
-                            fontWeight: 'bold',
-                            fontSize: '16px',
-                            color: theme.palette.neutral.main,
-                            '&:hover': { color: theme.palette.custom.highlight },
-                        }}
-                        disableRipple
-                        disableElevation
-                    >
-                        Home
-                    </StyledButton>
-
-                    <Box>
-                        <StyledButton
-                            onClick={(e) => setAnchorEl(e.currentTarget)}
-                            sx={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'flex-start',
-                                fontWeight: 'bold',
-                                fontSize: '16px',
-                                color: theme.palette.neutral.main,
-                                width: '100%',
-                                '&:hover': { color: theme.palette.custom.highlight },
-                            }}
-                            disableRipple
-                            disableElevation
-                        >
+                <Box
+                    sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        width: '100%',
+                    }}
+                >
+                    <Link to="/" style={{ width: '100%' }}>
+                        <StyledButton onClick={() => setDrawerOpen(false)}>
+                            Home
+                        </StyledButton>
+                    </Link>
+                    <Link to="/shop" style={{ width: '100%' }}>
+                        <StyledButton onClick={() => setDrawerOpen(false)}>
                             Shop
                         </StyledButton>
-                    </Box>
+                    </Link>
+                    <Link to="/aboutUs" style={{ width: '100%' }}>
+                        <StyledButton onClick={() => setDrawerOpen(false)}>
+                            About Us
+                        </StyledButton>
+                    </Link>
+                    <Link to="/contact" style={{ width: '100%' }}>
+                        <StyledButton onClick={() => setDrawerOpen(false)}>
+                            Contact
+                        </StyledButton>
+                    </Link>
+                    {!isLoggedIn ? (
+                        <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 1 }}>
+                            <Link to="/login" style={{ width: '100%' }}>
+                                <Button
+                                    fullWidth
+                                    variant="outlined"
+                                    onClick={() => setDrawerOpen(false)}
+                                    sx={{
+                                        color: theme.palette.custom.highlight,
+                                        borderColor: theme.palette.custom.highlight,
+                                    }}
+                                >
+                                    Login
+                                </Button>
+                            </Link>
+                            <Link to="/signup" style={{ width: '100%' }}>
+                                <Button
+                                    fullWidth
+                                    variant="contained"
+                                    onClick={() => setDrawerOpen(false)}
+                                    sx={{
+                                        backgroundColor: theme.palette.custom.highlight,
+                                        color: '#fff',
+                                    }}
+                                >
+                                    Sign Up
+                                </Button>
+                            </Link>
+                        </Box>
+                    ) : (
 
-                    <StyledButton
-                        sx={{
-                            justifyContent: 'flex-start',
-                            fontWeight: 'bold',
-                            fontSize: '16px',
-                            color: theme.palette.neutral.main,
-                            '&:hover': { color: theme.palette.custom.highlight },
-                        }}
-                        disableRipple
-                        disableElevation
-                    >
-                        About Us
-                    </StyledButton>
-                    <StyledButton
-                        onClick={() => setDrawerOpen(false)}
-                        sx={{
-                            justifyContent: 'flex-start',
-                            fontWeight: 'bold',
-                            fontSize: '16px',
-                            color: theme.palette.neutral.main,
-                            '&:hover': { color: theme.palette.custom.highlight },
-                        }}
-                        disableRipple
-                        disableElevation
-                    >
-                        Contact
-                    </StyledButton>
+                        <Box
+                            sx={{
+                                borderTop: '1px solid #dbd4c7',
+                                mt: 2,
+                                pt: 2,
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: 1
+                            }}
+                        >
+                            <Link to="/wishlist" style={{ width: '100%' }}>
+                                <StyledButton
+                                    onClick={() => setDrawerOpen(false)}
+                                    startIcon={<Heart size={20} />}
+                                    sx={{
+                                        borderRadius: 1,
+                                        '&:hover': {
+                                            backgroundColor: 'rgba(0, 0, 0, 0.04)'
+                                        }
+                                    }}
+                                >
+                                    Wishlist
+                                </StyledButton>
+                            </Link>
+                            <Link to="/cart" style={{ width: '100%' }}>
+                                <StyledButton
+                                    onClick={() => setDrawerOpen(false)}
+                                    startIcon={<ShoppingCart size={20} />}
+                                    sx={{
+                                        borderRadius: 1,
+                                        '&:hover': {
+                                            backgroundColor: 'rgba(0, 0, 0, 0.04)'
+                                        }
+                                    }}
+                                >
+                                    Cart
+                                </StyledButton>
+                            </Link>
+                            <Link to="/profile" style={{ width: '100%' }}>
+                                <StyledButton
+                                    onClick={() => setDrawerOpen(false)}
+                                    startIcon={<User size={20} />}
+                                    sx={{
+                                        borderRadius: 1,
+                                        '&:hover': {
+                                            backgroundColor: 'rgba(0, 0, 0, 0.04)'
+                                        }
+                                    }}
+                                >
+                                    Profile
+                                </StyledButton>
+                            </Link>
+                            <StyledButton
+                                onClick={() => {
+                                    handleLogout();
+                                    setDrawerOpen(false);
+                                }}
+                                sx={{
+                                    mt: 1,
+                                    color: theme.palette.error.main,
+                                    borderTop: '1px solid #dbd4c7',
+                                    borderRadius: 1,
+                                    paddingTop: 2,
+                                    '&:hover': {
+                                        backgroundColor: 'rgba(211, 47, 47, 0.04)',
+                                        color: theme.palette.error.dark,
+                                    }
+                                }}
+                            >
+                                Logout
+                            </StyledButton>
+                        </Box>
+                    )}
                 </Box>
             </Box>
         </Drawer>
     );
-
 
     return (
         <>
@@ -183,19 +294,25 @@ const Header = () => {
                         px={1}
                         justifyContent="space-between"
                     >
-                        <Typography
-                            variant="h5"
-                            component="div"
-                            sx={{
-                                fontFamily: 'serif',
-                                color: theme.palette.custom.highlight,
-                                fontWeight: 'bold',
-                            }}
-                        >
-                            ArtGlimpse
-                        </Typography>
-
-                        {renderDesktopMenu()}
+                        <Link to='/' style={{ textDecoration: 'none' }}>
+                            <Typography
+                                variant="h5"
+                                component="div"
+                                sx={{
+                                    fontFamily: 'serif',
+                                    color: theme.palette.custom.highlight,
+                                    fontWeight: 'bold'
+                                }}
+                            >
+                                ArtGlimpse
+                            </Typography>
+                        </Link>
+                        <Box display="flex" gap={4} alignItems="center" sx={{ display: { xs: 'none', md: 'flex' } }}>
+                            <Link to="/"><StyledButton>Home</StyledButton></Link>
+                            <Link to="/shop"><StyledButton>Shop</StyledButton></Link>
+                            <Link to="/aboutUs"><StyledButton>About Us</StyledButton></Link>
+                            <Link to="/contact"><StyledButton>Contact</StyledButton></Link>
+                        </Box>
                         <Box
                             sx={{
                                 display: { xs: 'none', md: 'flex' },
@@ -245,39 +362,9 @@ const Header = () => {
                                     }}
                                 />
                             </Box>
-                            <Link to="/login">
-                                <Button
-                                    variant="outlined"
-                                    sx={{
-                                        color: theme.palette.custom.highlight,
-                                        borderColor: theme.palette.custom.highlight,
-                                        textTransform: 'none',
-                                        fontWeight: 500,
-                                        '&:hover': {
-                                            borderColor: theme.palette.custom.accent,
-                                            backgroundColor: theme.palette.primary.main,
-                                        },
-                                    }}
-                                >
-                                    Login
-                                </Button>
-                            </Link>
-                            <Link to="/signup">
-                                <Button
-                                    variant="contained"
-                                    sx={{
-                                        backgroundColor: theme.palette.custom.highlight,
-                                        textTransform: 'none',
-                                        fontWeight: 500,
-                                        color: '#fff',
-                                        '&:hover': { backgroundColor: theme.palette.custom.accent },
-                                    }}
-                                >
-                                    Sign Up
-                                </Button>
-                            </Link>
-                        </Box>
 
+                            {isLoggedIn ? renderUserIcons() : renderAuthButtons()}
+                        </Box>
                         <IconButton
                             sx={{ display: { xs: 'flex', md: 'none' } }}
                             onClick={() => setDrawerOpen(true)}
@@ -294,5 +381,3 @@ const Header = () => {
 };
 
 export default Header;
-
-
