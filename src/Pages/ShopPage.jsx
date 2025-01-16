@@ -145,8 +145,10 @@ const ShopPage = () => {
             Price Range
           </Typography>
           <Slider
-            defaultValue={[0, 100]}
+            defaultValue={[100, 1000]}
             valueLabelDisplay="auto"
+            min={100} // Minimum value for the slider
+              max={1000}
             sx={{
               color: "#424242",
               "& .MuiSlider-thumb": {
@@ -159,6 +161,7 @@ const ShopPage = () => {
               "& .MuiSlider-rail": {
                 backgroundColor: "#E0E0E0",
               },
+              
               // m: 2, // Keeps margin on all sides
               // mx: 4, // Adds extra horizontal margin
             }}
