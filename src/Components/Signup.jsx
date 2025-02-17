@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import {
     Container,
     Box,
@@ -11,15 +11,43 @@ import {
 import { useForm } from 'react-hook-form';
 import SignupImg from '/assets/WhatsApp Image 2025-01-14 at 12.19.10 AM.jpeg';
 import { FormField } from './index';
+import { useNavigate } from 'react-router-dom';
+import authService from '../actions/authService';
+import { useDispatch } from 'react-redux';
+import { login } from '../store/authSlice';
 
 function Signup() {
-    const { register, handleSubmit, formState: { errors } } = useForm();
+    const { register, handleSubmit, watch, formState: { errors } } = useForm();
     const theme = useTheme();
     const [error, setError] = React.useState(null);
+    const navigate = useNavigate();
+    const dispatch = useDispatch();
+    const password = React.useRef({});
+    password.current = watch("password", "");
 
-    const signup = (data) => {
-        // Handle signup logic
-        console.log(data);
+    const signup = async (data) => {
+        try {
+            setError(null);
+            const response = await authService.signup(data.username, data.email, data.password);
+            console.log("response in page", response);
+            dispatch(login(response));
+            navigate('/');
+        } catch (err) {
+            setError(err.message || 'Registration failed. Please try again.');
+        }
+    };
+
+    const fieldStyle = {
+        '& .MuiOutlinedInput-root': {
+            '&.Mui-error': {
+                '& fieldset': {
+                    borderColor: 'red',
+                }
+            }
+        },
+        '& .MuiFormHelperText-root.Mui-error': {
+            color: 'red',
+        }
     };
 
     return (
@@ -105,14 +133,24 @@ function Signup() {
                     >
                         <Box sx={{ mb: 3 }}>
                             <FormField
+                                name="username"
                                 label="Full Name"
                                 placeholder="Enter Your Full Name"
                                 autoComplete="name"
-                                error={!!errors.name}
-                                helperText={errors.name?.message}
+                                error={!!errors.username}
+                                helperText={errors.username?.message}
                                 register={register}
+                                sx={fieldStyle}
                                 validationRules={{
-                                    required: 'Full Name is Required!',
+                                    required: 'Full Name is required!',
+                                    minLength: {
+                                        value: 2,
+                                        message: 'Name must be at least 2 characters long'
+                                    },
+                                    pattern: {
+                                        value: /^[a-zA-Z\s]*$/,
+                                        message: 'Name can only contain letters and spaces'
+                                    }
                                 }}
                             />
                         </Box>
@@ -125,13 +163,13 @@ function Signup() {
                                 error={!!errors.email}
                                 helperText={errors.email?.message}
                                 register={register}
+                                sx={fieldStyle}
                                 validationRules={{
-                                    required: 'Email address is Required!',
-                                    validate: {
-                                        matchPattern: (value) =>
-                                            /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(value) ||
-                                            'Email address must be a valid address',
-                                    },
+                                    required: 'Email address is required!',
+                                    pattern: {
+                                        value: /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/,
+                                        message: 'Please enter a valid email address'
+                                    }
                                 }}
                             />
                         </Box>
@@ -144,12 +182,17 @@ function Signup() {
                                 error={!!errors.password}
                                 helperText={errors.password?.message}
                                 register={register}
+                                sx={fieldStyle}
                                 validationRules={{
-                                    required: 'Password is Required!',
+                                    required: 'Password is required!',
                                     minLength: {
                                         value: 8,
-                                        message: 'Password must be at least 8 characters long',
+                                        message: 'Password must be at least 8 characters long'
                                     },
+                                    pattern: {
+                                        value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+                                        message: 'Password must contain at least one uppercase letter, one lowercase letter, one number and one special character'
+                                    }
                                 }}
                             />
                         </Box>
@@ -161,14 +204,26 @@ function Signup() {
                                 error={!!errors.confirmPassword}
                                 helperText={errors.confirmPassword?.message}
                                 register={register}
+                                sx={fieldStyle}
                                 validationRules={{
-                                    required: 'Confirm Password is Required!',
-                                    validate: (value) =>
-                                        value === document.querySelector('[name="password"]').value ||
-                                        'Passwords do not match',
+                                    required: 'Please confirm your password!',
+                                    validate: value =>
+                                        value === password.current || "Passwords do not match"
                                 }}
                             />
                         </Box>
+                        {error && (
+                            <Typography
+                                color="error"
+                                sx={{
+                                    mb: 2,
+                                    textAlign: 'center',
+                                    fontSize: '0.875rem'
+                                }}
+                            >
+                                {error}
+                            </Typography>
+                        )}
                         <Button
                             type="submit"
                             fullWidth
@@ -211,4 +266,4 @@ function Signup() {
     );
 }
 
-export default Signup;
+export default memo(Signup);

@@ -167,7 +167,7 @@ const Story = () => {
           <Grid item xs={12} md={6}>
             <Box
               component="img"
-              src="/assets/WhatsApp Image 2025-01-14 at 12.19.10 AM.jpeg"
+              src="/assets/image (9).jpg"
               alt="Workshop"
               sx={{
                 width: "100%",

@@ -1,6 +1,7 @@
 import './App.css'
 import { Outlet } from 'react-router-dom';
 import { Header, Footer } from './Components/index'
+import { memo } from 'react';
 
 function App() {
   return (
@@ -12,4 +13,4 @@ function App() {
   )
 }
 
-export default App
+export default memo(App)
