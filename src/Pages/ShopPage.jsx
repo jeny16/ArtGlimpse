@@ -48,7 +48,7 @@ const ShopPage = () => {
       name: "Traditional Antique Brass Lotus Pooja Thali Set",
       price: "₹1,499 - ₹2,499",
       category: "POOJA ESSENTIALS",
-      image: "src/assets/Screenshot 2025-01-12 144710.png",
+      image: "src/assets/image (12).jpg",
     },
     // ... other products
   ];

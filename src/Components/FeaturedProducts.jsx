@@ -21,28 +21,28 @@ const FeaturedProducts = () => {
             name: 'Traditional Antique Brass Lotus Pooja Thali Set with Diya and Bell',
             price: '₹1,499 - ₹2,499',
             category: 'POOJA ESSENTIALS',
-            image: 'src/assets/Screenshot 2025-01-12 144710.png'
+            image: 'src/assets/image (1).jpg'
         },
         {
             id: 2,
             name: 'Handcrafted Brass Peacock Incense Holder with Intricate Designs',
             price: '₹399 - ₹699',
             category: 'HOME DECOR',
-            image: 'src/assets/Screenshot 2025-01-12 144710.png'
+            image: 'src/assets/image (2).jpg'
         },
         {
             id: 3,
             name: 'Vintage Style Brass Ganesha Idol with Traditional Temple Design',
             price: '₹999 - ₹1,999',
             category: 'RELIGIOUS ARTIFACTS',
-            image: 'src/assets/Screenshot 2025-01-12 144710.png'
+            image: 'src/assets/image (1).jpg'
         },
         {
             id: 4,
             name: 'Handmade Brass Oil Lamp Set with Decorative Lotus Base (Set of 5)',
             price: '₹799 - ₹1,299',
             category: 'FESTIVAL SPECIALS',
-            image: 'src/assets/Screenshot 2025-01-12 144710.png'
+            image: 'src/assets/image (2).jpg'
         }
     ];
 

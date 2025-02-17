@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { memo, useState } from 'react';
 import { Search, Menu as MenuIcon, X as CloseIcon, Heart, ShoppingCart, User } from 'lucide-react';
 import {
     AppBar,
@@ -380,4 +380,4 @@ const Header = ({ isLoggedIn = false }) => {
     );
 };
 
-export default Header;
+export default memo(Header);

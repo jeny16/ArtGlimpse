@@ -1,16 +1,39 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { Container, Box, Typography, Button, Divider, Link, useTheme } from '@mui/material';
 import { useForm } from 'react-hook-form';
 import { FormField } from './index';
 import LoginImg from '/assets/WhatsApp Image 2025-01-14 at 12.19.10 AM.jpeg';
+import { useNavigate } from 'react-router-dom';
+import authService from '../actions/authService';
 
 function Login() {
     const { register, handleSubmit, formState: { errors } } = useForm();
     const theme = useTheme();
     const [error, setError] = React.useState(null);
+    const navigate = useNavigate();
 
-    const login = (data) => {
-        console.log(data);
+    const login = async (data) => {
+        try {
+            setError(null);
+            await authService.login(data.email, data.password);
+            navigate('/');
+        } catch (err) {
+            console.log("err", err);
+            setError(err || 'Login failed. Please try again.');
+        }
+    };
+
+    const fieldStyle = {
+        '& .MuiOutlinedInput-root': {
+            '&.Mui-error': {
+                '& fieldset': {
+                    borderColor: 'red',
+                }
+            }
+        },
+        '& .MuiFormHelperText-root.Mui-error': {
+            color: 'red',
+        }
     };
 
     return (
@@ -100,16 +123,16 @@ function Login() {
                                 placeholder="Enter Your Email"
                                 type="email"
                                 register={register}
-                                error={errors.email}
+                                error={!!errors.email}
                                 helperText={errors.email?.message}
                                 autoComplete="username"
+                                sx={fieldStyle}
                                 validationRules={{
-                                    required: 'Email address is Required!',
-                                    validate: {
-                                        matchPattern: (value) =>
-                                            /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(value) ||
-                                            'Email address must be a valid address',
-                                    },
+                                    required: 'Email address is required!',
+                                    pattern: {
+                                        value: /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/,
+                                        message: 'Please enter a valid email address'
+                                    }
                                 }}
                             />
                         </Box>
@@ -119,18 +142,31 @@ function Login() {
                                 placeholder="Enter Your Password"
                                 type="password"
                                 register={register}
-                                error={errors.password}
+                                error={!!errors.password}
                                 helperText={errors.password?.message}
                                 autoComplete="current-password"
+                                sx={fieldStyle}
                                 validationRules={{
-                                    required: 'Password is Required!',
+                                    required: 'Password is required!',
                                     minLength: {
                                         value: 8,
-                                        message: 'Password must be at least 8 characters long',
-                                    },
+                                        message: 'Password must be at least 8 characters long'
+                                    }
                                 }}
                             />
                         </Box>
+                        {error && (
+                            <Typography
+                                color="error"
+                                sx={{
+                                    mb: 2,
+                                    textAlign: 'center',
+                                    fontSize: '0.875rem'
+                                }}
+                            >
+                                {error}
+                            </Typography>
+                        )}
                         <Button
                             type="submit"
                             fullWidth
@@ -166,4 +202,4 @@ function Login() {
     );
 }
 
-export default Login;
+export default memo(Login);
