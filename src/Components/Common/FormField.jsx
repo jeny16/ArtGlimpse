@@ -1,8 +1,20 @@
 import React from 'react';
 import { TextField, useTheme } from '@mui/material';
 
-function FormField({ label, placeholder, type = 'text', register, error, helperText, autoComplete, validationRules }) {
+function FormField({
+    name,
+    label,
+    placeholder,
+    type = 'text',
+    register,
+    error,
+    helperText,
+    autoComplete,
+    validationRules
+}) {
     const theme = useTheme();
+    // Use the provided name or fallback to a normalized label (e.g. "Full Name" becomes "fullname")
+    const fieldName = name || label.toLowerCase().replace(/\s/g, '');
 
     return (
         <TextField
@@ -13,7 +25,7 @@ function FormField({ label, placeholder, type = 'text', register, error, helperT
             autoComplete={autoComplete}
             error={!!error}
             helperText={helperText}
-            {...register(label.toLowerCase(), validationRules)}
+            {...register(fieldName, validationRules)}
             InputProps={{
                 sx: {
                     '&.Mui-focused .MuiOutlinedInput-notchedOutline': {

@@ -12,6 +12,8 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import ShopPage from "./Pages/shopPage.jsx";
 import ContactPage from "./Pages/ContactPage.jsx"
 import AboutusPage from './Pages/AboutusPage.jsx';
+import store from './store/store.js'
+import { Provider } from "react-redux";
 
 const router = createBrowserRouter([
   {
@@ -86,12 +88,12 @@ const rootElement = document.getElementById("root");
 if (rootElement) {
   createRoot(rootElement).render(
     <StrictMode>
-      {/* <Provider store={store}> */}
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
-        <RouterProvider router={router} />
-      </ThemeProvider>
-      {/* </Provider> */}
+      <Provider store={store}>
+        <ThemeProvider theme={theme}>
+          <CssBaseline />
+          <RouterProvider router={router} />
+        </ThemeProvider>
+      </Provider>
     </StrictMode>
   );
 } else {
