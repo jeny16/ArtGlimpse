@@ -1,26 +1,27 @@
 import { createSlice } from "@reduxjs/toolkit";
 
+// Try to get the user from localStorage (if available)
+const user = JSON.parse(localStorage.getItem('user'));
+
 const initialState = {
-    status: false,
-    userData: null
-}
+  isLoggedIn: !!user,
+  userData: user || null,
+};
 
 const authSlice = createSlice({
-    name: "auth",
-    initialState,
-    reducers: {
-        login: (state, action) => {
-            console.log("action", action.payload);
-            state.status = true;
-            state.userData = action.payload.userData;
-        },
-        logout: (state) => {
-            state.status = false;
-            state.userData = null;
-        }
+  name: "auth",
+  initialState,
+  reducers: {
+    login: (state, action) => {
+      state.isLoggedIn = true;
+      state.userData = action.payload; // token and other user info
+    },
+    logout: (state) => {
+      state.isLoggedIn = false;
+      state.userData = null;
     }
-})
+  }
+});
 
-export const { login, logout } = authSlice.actions
-
-export default authSlice.reducer
+export const { login, logout } = authSlice.actions;
+export default authSlice.reducer;

@@ -5,23 +5,28 @@ import { FormField } from './index';
 import LoginImg from '/assets/WhatsApp Image 2025-01-14 at 12.19.10 AM.jpeg';
 import { useNavigate } from 'react-router-dom';
 import authService from '../actions/authService';
+import { useDispatch } from 'react-redux';
+import { login as loginUser } from '../store/authSlice';
 
 function Login() {
     const { register, handleSubmit, formState: { errors } } = useForm();
     const theme = useTheme();
     const [error, setError] = React.useState(null);
     const navigate = useNavigate();
+    const dispatch = useDispatch();
 
     const login = async (data) => {
-        try {
-            setError(null);
-            await authService.login(data.email, data.password);
-            navigate('/');
-        } catch (err) {
-            console.log("err", err);
-            setError(err || 'Login failed. Please try again.');
-        }
+      try {
+        setError(null);
+        const userData = await authService.login(data.email, data.password);
+        dispatch(loginUser(userData));
+        navigate('/');
+      } catch (err) {
+        console.error("Login failed", err);
+        setError(err.message || 'Login failed. Please try again.');
+      }
     };
+    
 
     const fieldStyle = {
         '& .MuiOutlinedInput-root': {
