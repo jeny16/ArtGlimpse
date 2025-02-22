@@ -27,15 +27,15 @@ function Signup() {
 
     const signup = async (data) => {
         try {
-            setError(null);
-            const response = await authService.signup(data.username, data.email, data.password);
-            console.log("response in page", response);
-            dispatch(login(response));
-            navigate('/');
+          setError(null);
+          const userData = await authService.signup(data.username, data.email, data.password);
+          dispatch(login(userData));
+          navigate('/');
         } catch (err) {
-            setError(err.message || 'Registration failed. Please try again.');
+          console.error("Signup failed", err);
+          setError(err.message || 'Registration failed. Please try again.');
         }
-    };
+      };
 
     const fieldStyle = {
         '& .MuiOutlinedInput-root': {
