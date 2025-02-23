@@ -10,6 +10,7 @@ import {
   useMediaQuery,
 } from "@mui/material";
 import { Quote } from "lucide-react";
+import { memo } from "react";
 
 const Testimonials = () => {
   const theme = useTheme();
@@ -138,4 +139,4 @@ const Testimonials = () => {
   );
 };
 
-export default Testimonials;
+export default memo(Testimonials);

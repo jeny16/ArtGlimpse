@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import {
     Box,
     Container,
@@ -200,4 +200,4 @@ const AboutUs = () => {
     );
 };
 
-export default AboutUs;
+export default memo(AboutUs);

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { AboutUs } from '../Components';
 
 const AboutusPage = () => {
@@ -9,4 +9,4 @@ const AboutusPage = () => {
     );
 }
 
-export default AboutusPage;
+export default memo(AboutusPage);

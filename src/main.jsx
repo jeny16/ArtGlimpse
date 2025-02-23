@@ -9,11 +9,14 @@ import HomePage from "./Pages/HomePage.jsx";
 import LoginPage from "./Pages/LoginPage.jsx";
 import SignupPage from "./Pages/SignupPage.jsx";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import ShopPage from "./Pages/shopPage.jsx";
+import ShopPage from "./Pages/ShopPage.jsx";
 import ContactPage from "./Pages/ContactPage.jsx"
 import AboutusPage from './Pages/AboutusPage.jsx';
 import store from './store/store.js'
 import { Provider } from "react-redux";
+import WishlistPage from "./Pages/WishlistPage.jsx";
+import CartPage from "./Pages/CartPage.jsx";
+import { AuthLayout } from "./Components/index.js";
 
 const router = createBrowserRouter([
   {
@@ -26,11 +29,19 @@ const router = createBrowserRouter([
       },
       {
         path: "/login",
-        element: <LoginPage />,
+        element: (
+          <AuthLayout authentication={false}>
+            <LoginPage />
+          </AuthLayout>
+        ),
       },
       {
         path: "/signup",
-        element: <SignupPage />,
+        element: (
+          <AuthLayout authentication={false}>
+            <SignupPage />
+          </AuthLayout>
+        ),
       },
       {
         path: "/shop",
@@ -46,12 +57,14 @@ const router = createBrowserRouter([
           <AboutusPage />
         )
       },
-      // {
-      //   path: "/wishlist",
-      //   element: (
-      //     <Wishlist />
-      //   )
-      // },
+      {
+        path: "/wishlist",
+        element: (
+          <AuthLayout authentication>
+            <WishlistPage />
+          </AuthLayout>
+        )
+      },
       // {
       //   path: "/profile",
       //   element: (
@@ -64,12 +77,14 @@ const router = createBrowserRouter([
       //     <ProfilePage />
       //   )
       // },
-      // {
-      //   path: "/cart",
-      //   element: (
-      //     <Cart />
-      //   )
-      // }
+      {
+        path: "/cart",
+        element: (
+          <AuthLayout authentication>
+            <CartPage />
+          </AuthLayout>
+        )
+      }
     ],
   },
 ]);

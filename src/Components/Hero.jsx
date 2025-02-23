@@ -1,4 +1,4 @@
-import React from "react";
+import React, { memo } from "react";
 import {
     Box,
     Button,
@@ -120,4 +120,4 @@ const Hero = () => {
     );
 };
 
-export default Hero;
+export default memo(Hero);

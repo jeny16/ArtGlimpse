@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import {
     Box,
     Typography,
@@ -349,4 +349,4 @@ const ContactPage = () => {
     );
 };
 
-export default ContactPage;
+export default memo(ContactPage);

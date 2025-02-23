@@ -1,5 +1,6 @@
 import { Heart, Package, Sparkles, Weight } from "lucide-react";
 import { Box, Container, Grid, Typography, useTheme, useMediaQuery } from "@mui/material";
+import { memo } from "react";
 
 const Story = () => {
   const theme = useTheme();
@@ -184,4 +185,4 @@ const Story = () => {
   );
 };
 
-export default Story;
+export default memo(Story);

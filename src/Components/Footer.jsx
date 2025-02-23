@@ -10,6 +10,7 @@ import {
     useTheme,
     useMediaQuery
 } from '@mui/material';
+import { memo } from "react";
 
 const Footer = () => {
     const theme = useTheme();
@@ -265,4 +266,4 @@ const Footer = () => {
     );
 };
 
-export default Footer;
+export default memo(Footer);
