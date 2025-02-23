@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { memo, useState, useEffect, useCallback, useMemo } from "react";
 import {
   Card,
   CardMedia,
@@ -6,158 +6,292 @@ import {
   IconButton,
   Typography,
   Box,
+  Divider,
   useTheme,
   useMediaQuery,
-  Divider,
+  Tooltip,
 } from "@mui/material";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
+import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
+import { Link } from "react-router-dom";
 
 const ProductCard = ({ product }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const isTablet = useMediaQuery(theme.breakpoints.down("md"));
+
+  const [isHovered, setIsHovered] = useState(false);
+  const [currentImage, setCurrentImage] = useState(0);
   const [isFavorite, setIsFavorite] = useState(false);
-  const products = [
-    {
-      id: 1,
-      name: "Traditional Antique Brass Lotus Pooja Thali Set with Diya and Bell",
-      price: "₹1,499 - ₹2,499",
-      category: "POOJA ESSENTIALS",
-      image: "src/assets/image (5).jpg",
-    },
-    {
-      id: 2,
-      name: "Handcrafted Brass Peacock Incense Holder with Intricate Designs",
-      price: "₹399 - ₹699",
-      category: "HOME DECOR",
-      image: "src/assets/image (6).jpg",
-    },
-    {
-      id: 3,
-      name: "Vintage Style Brass Ganesha Idol with Traditional Temple Design",
-      price: "₹999 - ₹1,999",
-      category: "RELIGIOUS ARTIFACTS",
-      image: "src/assets/image (7).jpg",
-    },
-    {
-      id: 4,
-      name: "Handmade Brass Oil Lamp Set with Decorative Lotus Base (Set of 5)",
-      price: "₹799 - ₹1,299",
-      category: "FESTIVAL SPECIALS",
-      image: "src/assets/image (8).jpg",
-    },
-  ];
+
+  // Use product.images (instead of product.Images)
+  const images = product.images && product.images.length > 0 ? product.images : ["none"];
+  // Check stock using product.stock (if stock <= 0, it's out of stock)
+  const isOutOfStock = product.stock <= 0;
+
+  const handleMouseEnter = useCallback(() => {
+    setIsHovered(true);
+  }, []);
+
+  const handleMouseLeave = useCallback(() => {
+    setIsHovered(false);
+    setCurrentImage(0);
+  }, []);
+
+  useEffect(() => {
+    let timer;
+    if (isHovered && images.length > 1 && !isOutOfStock) {
+      timer = setInterval(() => {
+        setCurrentImage((prev) => (prev + 1) % images.length);
+      }, 1500);
+    }
+    return () => timer && clearInterval(timer);
+  }, [isHovered, images, isOutOfStock]);
+
+  const discountBadge = useMemo(() => {
+    if (product.discount) {
+      return (
+        <Box
+          sx={{
+            position: "absolute",
+            top: isMobile ? 8 : 16,
+            left: isMobile ? 8 : 16,
+            backgroundColor: theme.palette.custom?.accent || "red",
+            px: isMobile ? 0.5 : 1,
+            py: isMobile ? 0.25 : 0.5,
+            borderRadius: 1,
+            zIndex: 2,
+          }}
+        >
+          <Typography
+            variant="caption"
+            sx={{
+              color: theme.palette.primary.main,
+              fontWeight: 600,
+              fontSize: isMobile ? "0.65rem" : "0.75rem",
+            }}
+          >
+            {product.percentage_Discount}% OFF
+          </Typography>
+        </Box>
+      );
+    }
+    return null;
+  }, [product.discount, product.percentage_Discount, isMobile, theme.palette.custom, theme.palette.primary.main]);
 
   return (
     <Card
       sx={{
-        height: "100%",
-        display: "flex",
-        flexDirection: "column",
-        borderRadius: "8px",
-        overflow: "visible",
-        backgroundColor: theme.palette.primary.main,
-        boxShadow: "none",
+        borderRadius: isHovered ? 0 : 2,
+        overflow: "hidden",
+        backgroundColor: isHovered ? theme.palette.primary.main : "transparent",
+        boxShadow: isHovered ? theme.shadows[4] : "none",
         position: "relative",
-        "&:hover": {
-          "& .MuiCardMedia-root": {
-            transform: "scale(1.03)",
-            transition: "transform 0.3s ease-in-out",
-          },
+        width: "100%",
+        maxWidth: {
+          xs: "160px",
+          sm: "200px",
+          md: "100%",
         },
+        transition: "all 0.3s ease-in-out",
+        cursor: "pointer",
       }}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
     >
-      <Box sx={{ position: "relative", overflow: "hidden" }}>
-        <CardMedia
-          component="img"
-          image={product.image || "none"}
-          alt={product.name}
-          sx={{
-            objectFit: "cover",
-            borderRadius: "8px",
-            transition: "transform 0.3s ease-in-out",
-          }}
-        />
-        <IconButton
-          onClick={() => setIsFavorite(!isFavorite)}
-          sx={{
-            position: "absolute",
-            top: 8,
-            right: 8,
-            backgroundColor: "rgba(255, 255, 255, 0.8)",
-            "&:hover": {
-              backgroundColor: "rgba(255, 255, 255, 0.9)",
-            },
-          }}
-        >
-          {isFavorite ? (
-            <FavoriteIcon sx={{ color: theme.palette.custom.highlight }} />
-          ) : (
-            <FavoriteBorderIcon
-              sx={{ color: theme.palette.custom.highlight }}
+      <Link to={`/product/${product.id}`} style={{ textDecoration: "none" }}>
+        <Box sx={{ position: "relative", overflow: "hidden" }}>
+          <Box
+            sx={{
+              position: "relative",
+              width: "100%",
+              paddingTop: {
+                xs: "133%",
+                sm: "130%",
+                md: "125%",
+              },
+            }}
+          >
+            <CardMedia
+              component="img"
+              image={images[currentImage]}
+              alt={product.name}
+              sx={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                transition: "transform 0.3s ease-in-out",
+                transform: isHovered ? "scale(1.03)" : "scale(1)",
+                borderRadius: isHovered ? 0 : 2,
+              }}
             />
+          </Box>
+          {discountBadge}
+          {isOutOfStock && (
+            <Box
+              sx={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                backgroundColor: "rgba(0,0,0,0.5)",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                zIndex: 3,
+              }}
+            >
+              <Typography
+                variant="h6"
+                sx={{
+                  color: "white",
+                  fontWeight: "bold",
+                  fontSize: isMobile ? "0.8rem" : "1rem",
+                }}
+              >
+                OUT OF STOCK
+              </Typography>
+            </Box>
           )}
-        </IconButton>
-      </Box>
-
-      <CardContent
-        sx={{
-          pt: 4,
-          pb: 2,
-          px: 1,
-        }}
-      >
-        <Typography
-          variant="caption"
+          {isHovered && !isOutOfStock && (
+            <Box
+              sx={{
+                position: "absolute",
+                top: isMobile ? 4 : 8,
+                right: isMobile ? 4 : 8,
+                display: "flex",
+                flexDirection: "column",
+                gap: isMobile ? 0.5 : 1,
+                zIndex: 2,
+              }}
+            >
+              <Tooltip title={isFavorite ? "Wishlisted" : "Add to wishlist"}>
+                <IconButton
+                  size={isMobile ? "small" : "medium"}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setIsFavorite((prev) => !prev);
+                  }}
+                  sx={{
+                    backgroundColor: "rgba(255,255,255,0.8)",
+                    "&:hover": { backgroundColor: "rgba(255,255,255,0.9)" },
+                  }}
+                >
+                  {isFavorite ? (
+                    <FavoriteIcon
+                      sx={{
+                        color: theme.palette.custom?.highlight || "red",
+                        fontSize: isMobile ? "1rem" : "1.25rem",
+                      }}
+                    />
+                  ) : (
+                    <FavoriteBorderIcon
+                      sx={{
+                        color: theme.palette.custom?.highlight || "red",
+                        fontSize: isMobile ? "1rem" : "1.25rem",
+                      }}
+                    />
+                  )}
+                </IconButton>
+              </Tooltip>
+              <Tooltip title="Add to Cart">
+                <IconButton
+                  size={isMobile ? "small" : "medium"}
+                  onClick={(e) => {
+                    e.preventDefault();
+                  }}
+                  sx={{
+                    backgroundColor: "rgba(255,255,255,0.8)",
+                    "&:hover": { backgroundColor: "rgba(255,255,255,0.9)" },
+                  }}
+                >
+                  <ShoppingCartOutlinedIcon
+                    sx={{
+                      color: theme.palette.custom?.highlight || "green",
+                      fontSize: isMobile ? "1rem" : "1.25rem",
+                    }}
+                  />
+                </IconButton>
+              </Tooltip>
+            </Box>
+          )}
+        </Box>
+        <CardContent
           sx={{
-            color: theme.palette.secondary.main,
-            fontFamily: theme.typography.fontFamily,
-            letterSpacing: "1px",
-            display: "block",
-            mb: 1,
+            pt: { xs: 1.5, sm: 2, md: 3 },
+            pb: { xs: 1, sm: 1.5, md: 2 },
+            px: { xs: 1, sm: 1.5, md: 2 },
           }}
         >
-          {product.category || "BRASS PRODUCT"}
-        </Typography>
-
-        <Divider
-          sx={{
-            width: "40px",
-            borderColor: theme.palette.custom.highlight,
-            borderWidth: "2px",
-            mb: 2,
-          }}
-        />
-
-        <Typography
-          variant="h6"
-          sx={{
-            fontFamily: theme.typography.h3.fontFamily,
-            color: theme.palette.neutral.light,
-            fontSize: isMobile ? "0.9rem" : "1rem",
-            fontWeight: 500,
-            mb: 1,
-            lineHeight: 1.4,
-          }}
-        >
-          {product.name}
-        </Typography>
-
-        <Typography
-          variant="h6"
-          sx={{
-            fontFamily: theme.typography.fontFamily,
-            color: theme.palette.custom.highlight,
-            fontSize: isMobile ? "1rem" : "1.1rem",
-            fontWeight: 600,
-          }}
-        >
-          {product.price}
-        </Typography>
-      </CardContent>
+          <Typography
+            variant="caption"
+            sx={{
+              color: theme.palette.secondary.main,
+              textTransform: "uppercase",
+              letterSpacing: 1,
+              mb: 0.5,
+              fontSize: {
+                xs: "0.6rem",
+                sm: "0.65rem",
+                md: "0.75rem",
+              },
+            }}
+          >
+            {product.categories}
+          </Typography>
+          <Divider
+            sx={{
+              width: { xs: 20, sm: 30, md: 40 },
+              borderColor: theme.palette.custom?.highlight || "black",
+              borderWidth: { xs: 1, sm: 1.5, md: 2 },
+              mb: { xs: 1, sm: 1.5, md: 2 },
+            }}
+          />
+          <Typography
+            variant="h6"
+            sx={{
+              color: theme.palette.neutral?.light || "black",
+              fontSize: {
+                xs: "0.75rem",
+                sm: "0.85rem",
+                md: "1rem",
+              },
+              fontWeight: 500,
+              mb: 0.5,
+              lineHeight: 1.4,
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              display: "-webkit-box",
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: "vertical",
+            }}
+          >
+            {product.name}
+          </Typography>
+          <Typography
+            variant="h6"
+            sx={{
+              color: theme.palette.custom?.highlight || "black",
+              fontSize: {
+                xs: "0.85rem",
+                sm: "0.95rem",
+                md: "1.1rem",
+              },
+              fontWeight: 600,
+            }}
+          >
+            {product.currency === "INR" ? "₹" : ""}
+            {product.price}
+          </Typography>
+        </CardContent>
+      </Link>
     </Card>
   );
 };
 
-export default ProductCard;
+export default memo(ProductCard);

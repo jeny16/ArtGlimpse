@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import {
     Box
 } from '@mui/material';
@@ -17,4 +17,4 @@ const HomePage = () => {
     );
 };
 
-export default HomePage;
+export default memo(HomePage);

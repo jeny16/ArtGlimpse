@@ -16,17 +16,18 @@ function Login() {
     const dispatch = useDispatch();
 
     const login = async (data) => {
-      try {
-        setError(null);
-        const userData = await authService.login(data.email, data.password);
-        dispatch(loginUser(userData));
-        navigate('/');
-      } catch (err) {
-        console.error("Login failed", err);
-        setError(err.message || 'Login failed. Please try again.');
-      }
+        try {
+            setError(null);
+            console.log("data", data);
+            const userData = await authService.login(data.email, data.password);
+            dispatch(loginUser(userData));
+            navigate('/');
+        } catch (err) {
+            console.error("Login failed", err);
+            setError(err.message || 'Login failed. Please try again.');
+        }
     };
-    
+
 
     const fieldStyle = {
         '& .MuiOutlinedInput-root': {
@@ -124,6 +125,7 @@ function Login() {
                     >
                         <Box sx={{ mb: 3 }}>
                             <FormField
+                                name="email"
                                 label="Email"
                                 placeholder="Enter Your Email"
                                 type="email"
@@ -143,6 +145,7 @@ function Login() {
                         </Box>
                         <Box sx={{ mb: 3 }}>
                             <FormField
+                                name="password"
                                 label="Password"
                                 placeholder="Enter Your Password"
                                 type="password"

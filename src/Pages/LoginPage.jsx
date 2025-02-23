@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { Login } from '../Components';
 
 const LoginPage = () => {
@@ -9,4 +9,4 @@ const LoginPage = () => {
     );
 }
 
-export default LoginPage;
+export default memo(LoginPage);

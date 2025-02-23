@@ -7,6 +7,7 @@ import {
   Palette,
   Truck,
 } from "lucide-react";
+import { memo } from "react";
 
 const Features = () => {
   const theme = useTheme();
@@ -143,4 +144,4 @@ const Features = () => {
   );
 };
 
-export default Features;
+export default memo(Features);
