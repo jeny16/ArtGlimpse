@@ -1,33 +1,25 @@
 import React, { useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Box, Typography, Button, Container, useTheme } from "@mui/material";
-import { ProductGrid, Loader, ErrorState, EmptyState } from "../Components";
+import { Box, Typography, Container } from "@mui/material";
+import { ProductGrid, Loader, ErrorState, EmptyState, CommonButton } from "../Components";
 import { fetchWishlist } from "../store/wishlistSlice";
-import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 
 const WishlistPage = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    const theme = useTheme();
     const auth = useSelector((state) => state.auth);
-    const userId = auth.userData?.userId;
+    // Use either userData.userId or userData._id based on your auth slice
+    const userId = auth.userData?.userId || auth.userData?._id;
 
     useEffect(() => {
         if (userId) {
-            dispatch(fetchWishlist(userId))
-                .unwrap()
-                .catch((error) => {
-                    toast.error("Failed to load wishlist");
-                    console.error("Error fetching wishlist:", error);
-                });
+            dispatch(fetchWishlist(userId));
         }
     }, [dispatch, userId]);
 
     const { wishlist, isLoading, error } = useSelector((state) => state.wishlist);
-    console.log("wishlist", wishlist);
-
-    // Filter out products that lack essential fields (e.g., name)
+    // Normalize wishlist products
     const validProducts = useMemo(() => {
         if (wishlist?.products) {
             return wishlist.products
@@ -36,7 +28,7 @@ const WishlistPage = () => {
                     const product = p.productId || p;
                     return product && product.name && product.name.trim() !== "";
                 })
-                .map(p => p.productId || p); // Normalize the product structure
+                .map(p => p.productId || p);
         }
         return [];
     }, [wishlist]);
@@ -46,7 +38,7 @@ const WishlistPage = () => {
         return (
             <ErrorState
                 title="Wishlist Error"
-                description={error}
+                description={typeof error === "object" ? error.message || JSON.stringify(error) : error}
                 buttonText="Retry"
                 onRetry={() => dispatch(fetchWishlist(userId))}
             />
@@ -83,26 +75,10 @@ const WishlistPage = () => {
             </Typography>
             <ProductGrid products={validProducts} />
             <Box sx={{ mt: 4, textAlign: "center" }}>
-                <Button
-                    sx={{
-                        backgroundColor: 'transparent',
-                        color: theme.palette.custom.highlight,
-                        border: `2px solid ${theme.palette.custom.highlight}`,
-                        textTransform: 'none',
-                        fontSize: '1rem',
-                        px: 3,
-                        py: 1,
-                        transition: 'all 0.3s ease',
-                        '&:hover': {
-                            backgroundColor: theme.palette.custom.highlight,
-                            color: theme.palette.primary.main,
-                            borderColor: theme.palette.custom.highlight,
-                        },
-                    }}
+                <CommonButton
+                    btnText="Back to Home"
                     onClick={() => navigate("/")}
-                >
-                    Back to Home
-                </Button>
+                />
             </Box>
         </Container>
     );

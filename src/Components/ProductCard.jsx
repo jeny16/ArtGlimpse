@@ -14,13 +14,16 @@ import {
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
+import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { addToWishlist, removeFromWishlist, fetchWishlist } from "../store/wishlistSlice";
+import { addToCart, fetchCart } from "../store/cartSlice";
 
-// Module-level flag to ensure fetchWishlist is only dispatched once
+// Module-level flag to ensure wishlist and cart are fetched only once
 let wishlistFetched = false;
+let cartFetched = false;
 
 const ProductCard = ({ product }) => {
   const theme = useTheme();
@@ -30,6 +33,7 @@ const ProductCard = ({ product }) => {
   const location = useLocation();
   const auth = useSelector((state) => state.auth);
   const wishlistState = useSelector((state) => state.wishlist.wishlist);
+  const cart = useSelector((state) => state.cart.cart);
 
   const [isHovered, setIsHovered] = useState(false);
   const [currentImage, setCurrentImage] = useState(0);
@@ -42,25 +46,58 @@ const ProductCard = ({ product }) => {
       : ["https://via.placeholder.com/150"];
   const isOutOfStock = product.stock <= 0;
 
-  // Fetch wishlist only once if not loaded, to avoid multiple API calls.
+  // Calculate product id once as a string
+  const prodId = (product.id || product._id)?.toString();
+
+  // Check if product is in cart (comparing as strings)
+  const inCart =
+    cart &&
+    cart.items &&
+    cart.items.find((item) => {
+      const idStr =
+        typeof item.productId === "string"
+          ? item.productId
+          : item.productId?.toString();
+      return idStr === prodId;
+    });
+
+  // Fetch wishlist only once if not loaded
   useEffect(() => {
-    if (auth.isLoggedIn && auth.userData?.userId && !wishlistState && !wishlistFetched) {
+    if (
+      auth.isLoggedIn &&
+      auth.userData?.userId &&
+      !wishlistState &&
+      !wishlistFetched
+    ) {
       dispatch(fetchWishlist(auth.userData.userId));
       wishlistFetched = true;
     }
   }, [auth, dispatch, wishlistState]);
 
+  // Fetch cart only once if not loaded so that filled cart icon shows immediately
+  useEffect(() => {
+    if (
+      auth.isLoggedIn &&
+      auth.userData?.userId &&
+      !cart &&
+      !cartFetched
+    ) {
+      dispatch(fetchCart(auth.userData.userId));
+      cartFetched = true;
+    }
+  }, [auth, dispatch, cart]);
+
   // Update local favorite state when wishlist changes
   useEffect(() => {
     if (wishlistState?.products) {
-      const prodId = (product.id || product._id)?.toString();
-      const exists = wishlistState.products.some(p =>
-        (p.id || p._id)?.toString() === prodId ||
-        (p.productId?._id || p.productId)?.toString() === prodId
+      const exists = wishlistState.products.some(
+        (p) =>
+          (p.id || p._id)?.toString() === prodId ||
+          (p.productId?._id || p.productId)?.toString() === prodId
       );
       setIsFavorite(exists);
     }
-  }, [wishlistState, product]);
+  }, [wishlistState, prodId]);
 
   const handleMouseEnter = useCallback(() => setIsHovered(true), []);
   const handleMouseLeave = useCallback(() => {
@@ -78,7 +115,7 @@ const ProductCard = ({ product }) => {
     return () => timer && clearInterval(timer);
   }, [isHovered, images, isOutOfStock]);
 
-  // Determine if we're on the wishlist page by checking the URL pathname
+  // Determine if we're on the wishlist page
   const isOnWishlistPage = location.pathname.includes("/wishlist");
 
   const handleWishlistToggle = async () => {
@@ -86,36 +123,64 @@ const ProductCard = ({ product }) => {
       toast.error("Please log in to modify your wishlist");
       return;
     }
-
-    const prodId = (product.id || product._id)?.toString();
     if (!prodId) {
       toast.error("Product ID not available");
       return;
     }
-
     try {
       if (isFavorite) {
         if (isOnWishlistPage) {
-          await dispatch(removeFromWishlist({
-            userId: auth.userData.userId,
-            productId: prodId
-          })).unwrap();
+          await dispatch(
+            removeFromWishlist({
+              userId: auth.userData.userId,
+              productId: prodId,
+            })
+          ).unwrap();
           toast.success("Removed from wishlist!");
         } else {
           navigate("/wishlist");
         }
       } else {
-        await dispatch(addToWishlist({
-          userId: auth.userData.userId,
-          productId: prodId
-        })).unwrap();
+        await dispatch(
+          addToWishlist({
+            userId: auth.userData.userId,
+            productId: prodId,
+          })
+        ).unwrap();
         toast.success("Added to wishlist!");
       }
-      // Refresh wishlist data after modification
       dispatch(fetchWishlist(auth.userData.userId));
     } catch (error) {
       toast.error(isFavorite ? "Failed to remove from wishlist" : "Failed to add to wishlist");
       console.error("Wishlist operation error:", error);
+    }
+  };
+
+  const handleCartAdd = async () => {
+    if (!auth.isLoggedIn || !auth.userData?.userId) {
+      toast.error("Please log in to add to cart");
+      return;
+    }
+    if (!prodId) {
+      toast.error("Product ID not available");
+      return;
+    }
+    if (inCart) {
+      navigate("/cart");
+      return;
+    }
+    try {
+      await dispatch(
+        addToCart({
+          userId: auth.userData.userId,
+          productId: prodId,
+          quantity: 1,
+        })
+      ).unwrap();
+      toast.success("Added to cart!");
+    } catch (error) {
+      toast.error("Failed to add to cart");
+      console.error("Cart add error:", error);
     }
   };
 
@@ -125,6 +190,10 @@ const ProductCard = ({ product }) => {
     }
     return "Add to wishlist";
   }, [isFavorite, isOnWishlistPage]);
+
+  const cartTooltip = useMemo(() => {
+    return inCart ? "View Cart" : "Add to Cart";
+  }, [inCart]);
 
   const discountBadge = useMemo(() => {
     if (product.discount) {
@@ -173,7 +242,7 @@ const ProductCard = ({ product }) => {
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      <Link to={`/product/${product.id || product._id}`} style={{ textDecoration: "none" }}>
+      <Link to={`/product/${prodId}`} style={{ textDecoration: "none" }}>
         <Box sx={{ position: "relative", overflow: "hidden" }}>
           <Box
             sx={{
@@ -327,25 +396,34 @@ const ProductCard = ({ product }) => {
             </IconButton>
           </Tooltip>
         )}
-        {isHovered && (
-          <Tooltip title="Add to Cart">
+        {(isHovered || inCart) && (
+          <Tooltip title={cartTooltip}>
             <IconButton
               size={isMobile ? "small" : "medium"}
               onClick={(e) => {
                 e.preventDefault();
-                // Implement add-to-cart functionality if needed
+                handleCartAdd();
               }}
               sx={{
                 backgroundColor: "rgba(255,255,255,0.8)",
                 "&:hover": { backgroundColor: "rgba(255,255,255,0.9)" },
               }}
             >
-              <ShoppingCartOutlinedIcon
-                sx={{
-                  color: theme.palette.custom?.highlight || "green",
-                  fontSize: isMobile ? "1rem" : "1.25rem",
-                }}
-              />
+              {inCart ? (
+                <ShoppingCartIcon
+                  sx={{
+                    color: theme.palette.custom?.highlight || "green",
+                    fontSize: isMobile ? "1rem" : "1.25rem",
+                  }}
+                />
+              ) : (
+                <ShoppingCartOutlinedIcon
+                  sx={{
+                    color: theme.palette.custom?.highlight || "green",
+                    fontSize: isMobile ? "1rem" : "1.25rem",
+                  }}
+                />
+              )}
             </IconButton>
           </Tooltip>
         )}

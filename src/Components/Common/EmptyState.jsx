@@ -1,8 +1,9 @@
 import React from 'react';
-import { Box, Typography, Button } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 import ShoppingCartOutlinedIcon from '@mui/icons-material/ShoppingCartOutlined';
 import { keyframes } from '@mui/system';
 import { useNavigate } from 'react-router-dom';
+import { CommonButton } from '../index';
 
 // Define a bounce animation using MUI's keyframes helper
 const bounceAnimation = keyframes`
@@ -60,9 +61,11 @@ const EmptyState = ({
             <Typography variant="body1" sx={{ color: 'grey.500', mb: 3, maxWidth: '600px' }}>
                 {description}
             </Typography>
-            <Button variant="contained" onClick={handleClick}>
-                {buttonText}
-            </Button>
+            <CommonButton
+                variant="contained"
+                onClick={handleClick}
+                btnText={buttonText}
+            />
         </Box>
     );
 };

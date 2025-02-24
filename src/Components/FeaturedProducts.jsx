@@ -1,7 +1,7 @@
 import React, { useEffect, memo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Box, Container, Typography, Button, useTheme, useMediaQuery } from '@mui/material';
-import { ProductGrid } from '../Components/index';
+import { ProductGrid, Loader, ErrorState, CommonButton } from '../Components';
 import { fetchProducts } from '../store/productSlice';
 import { useNavigate } from 'react-router-dom';
 
@@ -13,7 +13,6 @@ const FeaturedProducts = () => {
     const { products, isLoading, error } = useSelector((state) => state.product);
 
     useEffect(() => {
-        // Dispatch the thunk to fetch products if not already available
         if (!products.length) {
             dispatch(fetchProducts());
         }
@@ -21,6 +20,12 @@ const FeaturedProducts = () => {
 
     // Show only the first 8 products
     const displayedProducts = products.slice(0, 8);
+
+    // Convert error to a string if necessary
+    const errorMessage =
+        error && typeof error === 'object'
+            ? error.message || JSON.stringify(error)
+            : error;
 
     return (
         <Box
@@ -67,36 +72,24 @@ const FeaturedProducts = () => {
                     Featured Products
                 </Typography>
                 {isLoading ? (
-                    <Typography align="center">Loading...</Typography>
+                    <Loader />
                 ) : error ? (
-                    <Typography align="center" color="error">
-                        {error}
-                    </Typography>
+                    <ErrorState
+                        title="Error Loading Products"
+                        description={errorMessage}
+                        buttonText="Retry"
+                        onRetry={() => dispatch(fetchProducts())}
+                    />
                 ) : (
                     <>
                         <ProductGrid products={displayedProducts} />
                         {products.length > 8 && (
                             <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
-                                <Button
+                                <CommonButton
+                                    btnText="View More"
                                     onClick={() => navigate('/shop')}
-                                    sx={{
-                                        backgroundColor: 'transparent',
-                                        color: theme.palette.custom.highlight,
-                                        border: `2px solid ${theme.palette.custom.highlight}`,
-                                        textTransform: 'none',
-                                        fontSize: '1rem',
-                                        px: 3,
-                                        py: 1,
-                                        transition: 'all 0.3s ease',
-                                        '&:hover': {
-                                            backgroundColor: theme.palette.custom.highlight,
-                                            color: theme.palette.primary.main,
-                                            borderColor: theme.palette.custom.highlight,
-                                        },
-                                    }}
-                                >
-                                    View More
-                                </Button>
+                                />
+
                             </Box>
                         )}
                     </>
