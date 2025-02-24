@@ -1,243 +1,129 @@
-// src/components/FilterSidebar.js
-import React, { memo } from "react";
+import React from 'react';
 import {
-    Card,
-    CardContent,
-    Box,
-    Typography,
-    Grid,
-    Checkbox,
-    FormControlLabel,
-    Slider,
-    Divider,
-    IconButton,
-} from "@mui/material";
-import CloseIcon from "@mui/icons-material/Close";
+  Box,
+  Typography,
+  Checkbox,
+  FormGroup,
+  FormControlLabel,
+  Slider,
+  Stack,
+  styled,
+} from '@mui/material';
 
-// const FilterSidebar = ({ categories, onClose, isMobile }) => (
-//     <Card
-//         sx={{
-//             backgroundColor: "#FFFFFF",
-//             borderRadius: 2,
-//             boxShadow: "0 4px 12px rgba(0, 0, 0, 0.05)",
-//             border: "1px solid #F5F5F5",
-//         }}
-//     >
-//         <CardContent sx={{ p: 2 }}>
-//             <Box
-//                 sx={{
-//                     display: "flex",
-//                     justifyContent: "space-between",
-//                     alignItems: "center",
-//                     mb: 2,
-//                 }}
-//             >
-//                 <Typography
-//                     variant="h6"
-//                     sx={{ color: "#2C2C2C", fontWeight: 600, fontSize: "1.1rem" }}
-//                 >
-//                     FILTER BY
-//                 </Typography>
-//                 {isMobile && (
-//                     <IconButton onClick={onClose} size="small">
-//                         <CloseIcon sx={{ color: "#2C2C2C" }} />
-//                     </IconButton>
-//                 )}
-//             </Box>
+// Styled components for better layout
+const CategoryLabel = styled(FormControlLabel)(({ theme }) => ({
+  marginLeft: 0,
+  marginRight: 0,
+  width: '100%',
+  '& .MuiTypography-root': {
+    fontSize: '0.875rem',
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+  },
+  '& .MuiCheckbox-root': {
+    paddingTop: 4,
+    paddingBottom: 4,
+  },
+}));
 
-//             <Box>
-//                 <Typography
-//                     variant="subtitle2"
-//                     sx={{ color: "#2C2C2C", mb: 1, fontWeight: 500 }}
-//                 >
-//                     Category
-//                 </Typography>
-//                 <Grid container spacing={1}>
-//                     {categories.map((category) => (
-//                         <Grid item xs={6} key={category}>
-//                             <FormControlLabel
-//                                 control={
-//                                     <Checkbox
-//                                         size="small"
-//                                         sx={{
-//                                             color: "#757575",
-//                                             "&.Mui-checked": {
-//                                                 color: "#424242",
-//                                             },
-//                                             "& .MuiSvgIcon-root": {
-//                                                 fontSize: 18,
-//                                             },
-//                                         }}
-//                                     />
-//                                 }
-//                                 label={category}
-//                                 sx={{
-//                                     margin: 0,
-//                                     color: "#616161",
-//                                     "& .MuiFormControlLabel-label": {
-//                                         fontSize: "0.8rem",
-//                                         whiteSpace: "nowrap",
-//                                         overflow: "hidden",
-//                                         textOverflow: "ellipsis",
-//                                     },
-//                                 }}
-//                             />
-//                         </Grid>
-//                     ))}
-//                 </Grid>
-//             </Box>
+const ScrollableFormGroup = styled(FormGroup)({
+  maxHeight: '250px',
+  overflowY: 'auto',
+  marginRight: '-8px',
+  paddingRight: '8px',
+  '&::-webkit-scrollbar': {
+    width: '6px',
+  },
+  '&::-webkit-scrollbar-thumb': {
+    backgroundColor: '#9e9e9e',
+    borderRadius: '3px',
+  },
+  '&::-webkit-scrollbar-track': {
+    backgroundColor: '#f5f5f5',
+  },
+});
 
-//             <Divider sx={{ my: 2, borderColor: "#F0F0F0" }} />
+const PriceText = styled(Typography)(({ theme }) => ({
+  fontSize: '0.875rem',
+  fontWeight: 500,
+  color: theme.palette.text.primary,
+}));
 
-//             <Box sx={{ px: 2 }}>
-//                 <Typography
-//                     variant="subtitle2"
-//                     sx={{ color: "#2C2C2C", mb: 1, fontWeight: 500 }}
-//                 >
-//                     Price Range
-//                 </Typography>
-//                 <Slider
-//                     defaultValue={[100, 1000]}
-//                     valueLabelDisplay="auto"
-//                     min={100}
-//                     max={1000}
-//                     sx={{
-//                         color: "#424242",
-//                         "& .MuiSlider-thumb": {
-//                             backgroundColor: "#FFFFFF",
-//                             border: "2px solid #424242",
-//                         },
-//                         "& .MuiSlider-track": {
-//                             backgroundColor: "#424242",
-//                         },
-//                         "& .MuiSlider-rail": {
-//                             backgroundColor: "#E0E0E0",
-//                         },
-//                     }}
-//                 />
+const FilterSidebar = ({
+  categories,
+  selectedCategories,
+  onCategoryChange,
+  priceRange,
+  onPriceRangeChange,
+}) => {
+  const handlePriceChange = (event, newValue) => {
+    onPriceRangeChange(newValue);
+  };
 
-//                 <Grid container spacing={2}>
-//                     <Grid item xs={6}>
-//                         <Typography
-//                             variant="caption"
-//                             sx={{ color: "#757575", display: "block" }}
-//                         >
-//                             Min Price
-//                         </Typography>
-//                         <Typography variant="body2" sx={{ color: "#2C2C2C", fontWeight: 500 }}>
-//                             ₹499
-//                         </Typography>
-//                     </Grid>
-//                     <Grid item xs={6}>
-//                         <Typography
-//                             variant="caption"
-//                             sx={{ color: "#757575", display: "block" }}
-//                         >
-//                             Max Price
-//                         </Typography>
-//                         <Typography variant="body2" sx={{ color: "#2C2C2C", fontWeight: 500 }}>
-//                             ₹9,999
-//                         </Typography>
-//                     </Grid>
-//                 </Grid>
-//             </Box>
-//         </CardContent>
-//     </Card>
-// );
+  const valueText = (value) => {
+    return `₹${value.toLocaleString()}`;
+  };
 
-const FilterSidebar = ({ categories, onClose, isMobile }) => (
-    <Card
-        sx={{
-            backgroundColor: "#FFFFFF",
-            borderRadius: 2,
-            boxShadow: "0 4px 12px rgba(0, 0, 0, 0.05)",
-            border: "1px solid #F5F5F5",
-        }}
-    >
-        <CardContent sx={{ p: 2 }}>
-            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-                <Typography variant="h6" sx={{ color: "#2C2C2C", fontWeight: 600, fontSize: "1.1rem" }}>
-                    FILTER BY
-                </Typography>
-                {isMobile && (
-                    <IconButton onClick={onClose} size="small">
-                        <CloseIcon sx={{ color: "#2C2C2C" }} />
-                    </IconButton>
-                )}
-            </Box>
-            <Box>
-                <Typography variant="subtitle2" sx={{ color: "#2C2C2C", mb: 1, fontWeight: 500 }}>
-                    Category
-                </Typography>
-                <Grid container spacing={1}>
-                    {categories.map((category) => (
-                        <Grid item xs={6} key={category}>
-                            <FormControlLabel
-                                control={
-                                    <Checkbox
-                                        size="small"
-                                        sx={{
-                                            color: "#757575",
-                                            "&.Mui-checked": { color: "#424242" },
-                                            "& .MuiSvgIcon-root": { fontSize: 18 },
-                                        }}
-                                    />
-                                }
-                                label={category}
-                                sx={{
-                                    margin: 0,
-                                    color: "#616161",
-                                    "& .MuiFormControlLabel-label": {
-                                        fontSize: "0.8rem",
-                                        whiteSpace: "nowrap",
-                                        overflow: "hidden",
-                                        textOverflow: "ellipsis",
-                                    },
-                                }}
-                            />
-                        </Grid>
-                    ))}
-                </Grid>
-            </Box>
-            <Divider sx={{ my: 2, borderColor: "#F0F0F0" }} />
-            <Box sx={{ px: 2 }}>
-                <Typography variant="subtitle2" sx={{ color: "#2C2C2C", mb: 1, fontWeight: 500 }}>
-                    Price Range
-                </Typography>
-                <Slider
-                    defaultValue={[100, 1000]}
-                    valueLabelDisplay="auto"
-                    min={100}
-                    max={1000}
-                    sx={{
-                        color: "#424242",
-                        "& .MuiSlider-thumb": { backgroundColor: "#FFFFFF", border: "2px solid #424242" },
-                        "& .MuiSlider-track": { backgroundColor: "#424242" },
-                        "& .MuiSlider-rail": { backgroundColor: "#E0E0E0" },
-                    }}
+  return (
+    <Stack spacing={4}>
+      {/* Categories Section */}
+      <Box>
+        <Typography variant="h6" gutterBottom fontWeight="500">
+          Categories
+        </Typography>
+        <ScrollableFormGroup>
+          {categories.map((category) => (
+            <CategoryLabel
+              key={category}
+              control={
+                <Checkbox
+                  sx={{ color: "#e3ddd1" }}  
+                  size="small"
+                  value={category}
+                  checked={selectedCategories.includes(category.toLowerCase())}
+                  onChange={(e) =>
+                    onCategoryChange(category, e.target.checked)
+                  }
                 />
-                <Grid container spacing={2}>
-                    <Grid item xs={6}>
-                        <Typography variant="caption" sx={{ color: "#757575", display: "block" }}>
-                            Min Price
-                        </Typography>
-                        <Typography variant="body2" sx={{ color: "#2C2C2C", fontWeight: 500 }}>
-                            ₹499
-                        </Typography>
-                    </Grid>
-                    <Grid item xs={6}>
-                        <Typography variant="caption" sx={{ color: "#757575", display: "block" }}>
-                            Max Price
-                        </Typography>
-                        <Typography variant="body2" sx={{ color: "#2C2C2C", fontWeight: 500 }}>
-                            ₹9,999
-                        </Typography>
-                    </Grid>
-                </Grid>
-            </Box>
-        </CardContent>
-    </Card>
-);
+              }
+              label={category}
+            />
+          ))}
+        </ScrollableFormGroup>
+      </Box>
 
+      {/* Price Range Section */}
+      <Box>
+        <Typography variant="h6" gutterBottom fontWeight="500">
+          Price Range
+        </Typography>
+        <Box>
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              mb: 1,
+            }}
+          >
+            <PriceText>{valueText(priceRange[0])}</PriceText>
+            <PriceText>{valueText(priceRange[1])}</PriceText>
+          </Box>
+          <Slider
+            sx={{ color: "#e3ddd1" }}
+            value={priceRange}
+            onChange={handlePriceChange}
+            valueLabelDisplay="auto"
+            valueLabelFormat={valueText}
+            getAriaValueText={valueText}
+            min={0}
+            max={10000}
+            step={100}
+          />
+        </Box>
+      </Box>
+    </Stack>
+  );
+};
 
-export default memo(FilterSidebar);
+export default FilterSidebar;

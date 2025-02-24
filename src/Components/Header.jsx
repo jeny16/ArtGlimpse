@@ -1,5 +1,5 @@
 import React, { memo, useState } from 'react';
-import { Search, Menu as MenuIcon, X as CloseIcon, Heart, ShoppingCart, User } from 'lucide-react';
+import { Search, Menu as MenuIcon, X as CloseIcon, Heart, ShoppingCart, User, LogOut, FileText } from 'lucide-react';
 import {
   AppBar,
   Box,
@@ -10,9 +10,11 @@ import {
   TextField,
   Typography,
   useTheme,
-  Badge,
   Menu,
   MenuItem,
+  Divider,
+  ListItemIcon,
+  ListItemText,
 } from '@mui/material';
 import { Link, useNavigate } from 'react-router-dom';
 import { styled } from '@mui/material/styles';
@@ -52,7 +54,6 @@ const IconWrapper = styled(IconButton)(({ theme }) => ({
 }));
 
 const Header = () => {
-  const [anchorEl, setAnchorEl] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [profileMenuAnchor, setProfileMenuAnchor] = useState(null);
   const theme = useTheme();
@@ -117,36 +118,17 @@ const Header = () => {
     <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 2, alignItems: 'center' }}>
       <Link to="/wishlist">
         <IconWrapper>
-          <Badge badgeContent={3} color="error">
             <Heart size={24} />
-          </Badge>
         </IconWrapper>
       </Link>
       <Link to="/cart">
         <IconWrapper>
-          <Badge badgeContent={2} color="error">
             <ShoppingCart size={24} />
-          </Badge>
         </IconWrapper>
       </Link>
-      <Link to="/profile">
-        <IconWrapper >
-          <User size={24} />
-        </IconWrapper>
-      </Link>
-      <Button
-        variant="text"
-        onClick={handleLogout}
-        sx={{
-          backgroundColor: theme.palette.custom.highlight,
-          textTransform: "none",
-          fontWeight: 500,
-          color: "#fff",
-          "&:hover": { backgroundColor: theme.palette.custom.accent },
-        }}
-      >
-        LOGOUT
-      </Button>
+      <IconWrapper onClick={handleProfileMenuOpen}>
+        <User size={24} />
+      </IconWrapper>
     </Box>
   );
 
@@ -174,7 +156,6 @@ const Header = () => {
             <CloseIcon />
           </IconButton>
         </Box>
-
         <Box
           sx={{
             display: 'flex',
@@ -232,7 +213,6 @@ const Header = () => {
               </Link>
             </Box>
           ) : (
-
             <Box
               sx={{
                 borderTop: '1px solid #dbd4c7',
@@ -240,7 +220,7 @@ const Header = () => {
                 pt: 2,
                 display: 'flex',
                 flexDirection: 'column',
-                gap: 1
+                gap: 1,
               }}
             >
               <Link to="/wishlist" style={{ width: '100%' }}>
@@ -249,9 +229,7 @@ const Header = () => {
                   startIcon={<Heart size={20} />}
                   sx={{
                     borderRadius: 1,
-                    '&:hover': {
-                      backgroundColor: 'rgba(0, 0, 0, 0.04)'
-                    }
+                    '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)' },
                   }}
                 >
                   Wishlist
@@ -263,9 +241,7 @@ const Header = () => {
                   startIcon={<ShoppingCart size={20} />}
                   sx={{
                     borderRadius: 1,
-                    '&:hover': {
-                      backgroundColor: 'rgba(0, 0, 0, 0.04)'
-                    }
+                    '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)' },
                   }}
                 >
                   Cart
@@ -277,9 +253,7 @@ const Header = () => {
                   startIcon={<User size={20} />}
                   sx={{
                     borderRadius: 1,
-                    '&:hover': {
-                      backgroundColor: 'rgba(0, 0, 0, 0.04)'
-                    }
+                    '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)' },
                   }}
                 >
                   Profile
@@ -299,7 +273,7 @@ const Header = () => {
                   '&:hover': {
                     backgroundColor: 'rgba(211, 47, 47, 0.04)',
                     color: theme.palette.error.dark,
-                  }
+                  },
                 }}
               >
                 Logout
@@ -315,13 +289,7 @@ const Header = () => {
     <>
       <StyledAppBar position="fixed">
         <Container>
-          <Box
-            display="flex"
-            alignItems="center"
-            py={3}
-            px={1}
-            justifyContent="space-between"
-          >
+          <Box display="flex" alignItems="center" py={3} px={1} justifyContent="space-between">
             <Link to='/' style={{ textDecoration: 'none' }}>
               <Typography
                 variant="h5"
@@ -341,13 +309,7 @@ const Header = () => {
               <Link to="/aboutUs"><StyledButton>About Us</StyledButton></Link>
               <Link to="/contact"><StyledButton>Contact</StyledButton></Link>
             </Box>
-            <Box
-              sx={{
-                display: { xs: 'none', md: 'flex' },
-                gap: 2,
-                alignItems: 'center'
-              }}
-            >
+            <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 2, alignItems: 'center' }}>
               <Box position="relative">
                 <TextField
                   size="small"
@@ -357,31 +319,19 @@ const Header = () => {
                     startAdornment: (
                       <Search
                         size={20}
-                        style={{
-                          marginRight: 8,
-                          color: theme.palette.secondary.main,
-                        }}
+                        style={{ marginRight: 8, color: theme.palette.secondary.main }}
                       />
                     ),
-                    sx: {
-                      paddingInline: '10px',
-                      fontSize: '14px',
-                    },
+                    sx: { paddingInline: '10px', fontSize: '14px' },
                   }}
                   sx={{
                     backgroundColor: theme.palette.primary.main,
                     borderRadius: '50px',
                     border: '1px solid #dbd4c7',
                     '& .MuiOutlinedInput-root': {
-                      '& fieldset': {
-                        border: 'none',
-                      },
-                      '&:hover fieldset': {
-                        borderColor: theme.palette.primary.dark,
-                      },
-                      '&.Mui-focused fieldset': {
-                        borderColor: theme.palette.custom.highlight,
-                      },
+                      '& fieldset': { border: 'none' },
+                      '&:hover fieldset': { borderColor: theme.palette.primary.dark },
+                      '&.Mui-focused fieldset': { borderColor: theme.palette.custom.highlight },
                     },
                     '& input::placeholder': {
                       color: theme.palette.secondary.main,
@@ -390,13 +340,9 @@ const Header = () => {
                   }}
                 />
               </Box>
-
               {isLoggedIn ? renderUserIcons() : renderAuthButtons()}
             </Box>
-            <IconButton
-              sx={{ display: { xs: 'flex', md: 'none' } }}
-              onClick={() => setDrawerOpen(true)}
-            >
+            <IconButton sx={{ display: { xs: 'flex', md: 'none' } }} onClick={() => setDrawerOpen(true)}>
               <MenuIcon />
             </IconButton>
           </Box>
@@ -404,6 +350,35 @@ const Header = () => {
       </StyledAppBar>
 
       {renderMobileMenu()}
+
+      {/* Enhanced Profile Drop Down Menu */}
+      <Menu
+        anchorEl={profileMenuAnchor}
+        open={Boolean(profileMenuAnchor)}
+        onClose={handleProfileMenuClose}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+      >
+        <MenuItem onClick={() => { handleProfileMenuClose(); navigate("/profile"); }}>
+          <ListItemIcon>
+            <User size={20} />
+          </ListItemIcon>
+          <ListItemText primary="Profile Dashboard" />
+        </MenuItem>
+        <MenuItem onClick={() => { handleProfileMenuClose(); navigate("/orders"); }}>
+          <ListItemIcon>
+            <FileText size={20} />
+          </ListItemIcon>
+          <ListItemText primary="Orders" />
+        </MenuItem>
+        <Divider />
+        <MenuItem onClick={handleLogout}>
+          <ListItemIcon>
+            <LogOut size={20} />
+          </ListItemIcon>
+          <ListItemText primary="Logout" />
+        </MenuItem>
+      </Menu>
     </>
   );
 };

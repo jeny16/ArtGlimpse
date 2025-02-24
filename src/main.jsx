@@ -16,6 +16,8 @@ import store from './store/store.js'
 import { Provider } from "react-redux";
 import WishlistPage from "./Pages/WishlistPage.jsx";
 import CartPage from "./Pages/CartPage.jsx";
+import ProductDetail from "./Pages/ProductDetail.jsx";
+import ProfilePage from "./Pages/ProfilePage.jsx"
 import { AuthLayout } from "./Components/index.js";
 
 const router = createBrowserRouter([
@@ -58,6 +60,12 @@ const router = createBrowserRouter([
         )
       },
       {
+        path: "/product/:id",
+        element: (
+          <ProductDetail />
+        )
+      },
+      {
         path: "/wishlist",
         element: (
           <AuthLayout authentication>
@@ -65,12 +73,12 @@ const router = createBrowserRouter([
           </AuthLayout>
         )
       },
-      // {
-      //   path: "/profile",
-      //   element: (
-      //     <ProfilePage />
-      //   )
-      // },
+      {
+        path: "/profile",
+        element: (
+          <ProfilePage />
+        )
+      },
       // {
       //   path: "/profile/:slug",
       //   element: (
