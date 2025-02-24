@@ -1,4 +1,3 @@
-// src/components/common/ErrorState.js
 import React from 'react';
 import { Box, Typography, Button } from '@mui/material';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
@@ -14,8 +13,13 @@ const ErrorState = ({
     title = "Something went wrong",
     description = "An error occurred while fetching data. Please try again later.",
     buttonText = "RETRY",
-    onRetry, // Callback function to retry the action
+    onRetry,
 }) => {
+    const displayDescription =
+        typeof description === 'object'
+            ? description.message || JSON.stringify(description)
+            : description;
+
     return (
         <Box
             sx={{
@@ -40,7 +44,7 @@ const ErrorState = ({
                 {title}
             </Typography>
             <Typography variant="body1" sx={{ color: 'text.secondary', mb: 3, maxWidth: '600px' }}>
-                {description}
+                {displayDescription}
             </Typography>
             <Button variant="contained" color="error" onClick={onRetry}>
                 {buttonText}

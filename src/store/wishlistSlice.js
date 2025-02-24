@@ -14,7 +14,10 @@ export const fetchWishlist = createAsyncThunk(
             const data = await wishlistService.getWishlist(userId);
             return data;
         } catch (error) {
-            return thunkAPI.rejectWithValue(error.response?.data || error.message);
+            console.error("fetchWishlist error:", error);
+            return thunkAPI.rejectWithValue(
+                error.response?.data || error.message || "Failed to fetch wishlist"
+            );
         }
     }
 );
@@ -26,7 +29,10 @@ export const addToWishlist = createAsyncThunk(
             const data = await wishlistService.addToWishlist({ userId, productId });
             return data;
         } catch (error) {
-            return thunkAPI.rejectWithValue(error.response?.data || error.message);
+            console.error("addToWishlist error:", error);
+            return thunkAPI.rejectWithValue(
+                error.response?.data || error.message || "Failed to add product to wishlist"
+            );
         }
     }
 );
@@ -38,7 +44,10 @@ export const removeFromWishlist = createAsyncThunk(
             const data = await wishlistService.removeFromWishlist({ userId, productId });
             return data;
         } catch (error) {
-            return thunkAPI.rejectWithValue(error.response?.data || error.message);
+            console.error("removeFromWishlist error:", error);
+            return thunkAPI.rejectWithValue(
+                error.response?.data || error.message || "Failed to remove product from wishlist"
+            );
         }
     }
 );
@@ -59,7 +68,7 @@ const wishlistSlice = createSlice({
             })
             .addCase(fetchWishlist.rejected, (state, action) => {
                 state.isLoading = false;
-                state.error = action.payload;
+                state.error = action.payload || "Failed to fetch wishlist";
             })
             .addCase(addToWishlist.pending, (state) => {
                 state.isLoading = true;
@@ -71,7 +80,7 @@ const wishlistSlice = createSlice({
             })
             .addCase(addToWishlist.rejected, (state, action) => {
                 state.isLoading = false;
-                state.error = action.payload;
+                state.error = action.payload || "Failed to add product to wishlist";
             })
             .addCase(removeFromWishlist.pending, (state) => {
                 state.isLoading = true;
@@ -86,7 +95,7 @@ const wishlistSlice = createSlice({
             })
             .addCase(removeFromWishlist.rejected, (state, action) => {
                 state.isLoading = false;
-                state.error = action.payload;
+                state.error = action.payload || "Failed to remove product from wishlist";
             });
     },
 });
