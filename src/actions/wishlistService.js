@@ -1,4 +1,3 @@
-// src/actions/wishlistService.js
 import axios from "axios";
 
 const API_URL = "http://localhost:8081/wishlist";
@@ -17,7 +16,7 @@ const wishlistService = {
     },
 
     // Add a product to the wishlist
-    addToWishlist: async (userId, productId) => {
+    addToWishlist: async ({ userId, productId }) => {
         try {
             const response = await axios.post(API_URL, { userId, productId });
             console.log("response from addToWishlist", response.data);
@@ -29,7 +28,7 @@ const wishlistService = {
     },
 
     // Remove a product from the wishlist
-    removeFromWishlist: async (userId, productId) => {
+    removeFromWishlist: async ({ userId, productId }) => {
         try {
             const response = await axios.delete(`${API_URL}/${userId}/${productId}`);
             console.log("response from removeFromWishlist", response.data);

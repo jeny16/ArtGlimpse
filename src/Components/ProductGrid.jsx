@@ -8,28 +8,26 @@ const ProductGrid = ({ products }) => {
     const productItems = useMemo(() => {
         return products.map((product, index) => (
             <Fade in={true} timeout={500 + index * 200} key={product.id || index}>
-                <Box
-                    sx={{
-                        flex: '0 1 calc(50% - 16px)',
-                        [theme.breakpoints.up('sm')]: { flex: '0 1 calc(33.33% - 16px)' },
-                        [theme.breakpoints.up('md')]: { flex: '0 1 calc(25% - 16px)' },
-                        display: 'flex',
-                        justifyContent: 'center'
-                    }}
-                >
+                <Box>
                     <ProductCard product={product} />
                 </Box>
             </Fade>
         ));
-    }, [products, theme]);
+    }, [products]);
 
     return (
         <Box
             sx={{
-                display: 'flex',
-                flexWrap: 'wrap',
-                justifyContent: 'center',
-                gap: { xs: 2, sm: 3, md: 4 }
+                maxWidth: '1200px',   // maximum width for larger screens
+                width: '100%',        // full width on smaller devices
+                mx: 'auto',           // centers the grid horizontally
+                display: 'grid',
+                gridTemplateColumns: {
+                    xs: 'repeat(2, 1fr)',  // 2 columns for mobile
+                    sm: 'repeat(3, 1fr)',  // 3 columns for tablet
+                    md: 'repeat(4, 1fr)'   // 4 columns for laptop and up
+                },
+                gap: '16px',           // fixed gap between items
             }}
         >
             {productItems}

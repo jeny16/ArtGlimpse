@@ -24,7 +24,9 @@ const ErrorState = ({
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
+                justifyContent: 'center',
                 gap: 2,
+                minHeight: '100vh',
             }}
         >
             <ErrorOutlineIcon

@@ -118,12 +118,12 @@ const Header = () => {
     <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 2, alignItems: 'center' }}>
       <Link to="/wishlist">
         <IconWrapper>
-            <Heart size={24} />
+          <Heart size={24} />
         </IconWrapper>
       </Link>
       <Link to="/cart">
         <IconWrapper>
-            <ShoppingCart size={24} />
+          <ShoppingCart size={24} />
         </IconWrapper>
       </Link>
       <IconWrapper onClick={handleProfileMenuOpen}>

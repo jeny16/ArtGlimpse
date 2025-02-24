@@ -14,26 +14,55 @@ import {
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { toast } from "react-toastify";
+import { addToWishlist, removeFromWishlist, fetchWishlist } from "../store/wishlistSlice";
+
+// Module-level flag to ensure fetchWishlist is only dispatched once
+let wishlistFetched = false;
 
 const ProductCard = ({ product }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-  const isTablet = useMediaQuery(theme.breakpoints.down("md"));
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const auth = useSelector((state) => state.auth);
+  const wishlistState = useSelector((state) => state.wishlist.wishlist);
 
   const [isHovered, setIsHovered] = useState(false);
   const [currentImage, setCurrentImage] = useState(0);
   const [isFavorite, setIsFavorite] = useState(false);
 
-  // Use product.images (instead of product.Images)
-  const images = product.images && product.images.length > 0 ? product.images : ["none"];
-  // Check stock using product.stock (if stock <= 0, it's out of stock)
+  // Use product.images if available; otherwise, a placeholder image
+  const images =
+    product.images && product.images.length > 0
+      ? product.images
+      : ["https://via.placeholder.com/150"];
   const isOutOfStock = product.stock <= 0;
 
-  const handleMouseEnter = useCallback(() => {
-    setIsHovered(true);
-  }, []);
+  // Fetch wishlist only once if not loaded, to avoid multiple API calls.
+  useEffect(() => {
+    if (auth.isLoggedIn && auth.userData?.userId && !wishlistState && !wishlistFetched) {
+      dispatch(fetchWishlist(auth.userData.userId));
+      wishlistFetched = true;
+    }
+  }, [auth, dispatch, wishlistState]);
 
+  // Update local favorite state when wishlist changes
+  useEffect(() => {
+    if (wishlistState?.products) {
+      const prodId = (product.id || product._id)?.toString();
+      const exists = wishlistState.products.some(p =>
+        (p.id || p._id)?.toString() === prodId ||
+        (p.productId?._id || p.productId)?.toString() === prodId
+      );
+      setIsFavorite(exists);
+    }
+  }, [wishlistState, product]);
+
+  const handleMouseEnter = useCallback(() => setIsHovered(true), []);
   const handleMouseLeave = useCallback(() => {
     setIsHovered(false);
     setCurrentImage(0);
@@ -49,6 +78,54 @@ const ProductCard = ({ product }) => {
     return () => timer && clearInterval(timer);
   }, [isHovered, images, isOutOfStock]);
 
+  // Determine if we're on the wishlist page by checking the URL pathname
+  const isOnWishlistPage = location.pathname.includes("/wishlist");
+
+  const handleWishlistToggle = async () => {
+    if (!auth.isLoggedIn || !auth.userData?.userId) {
+      toast.error("Please log in to modify your wishlist");
+      return;
+    }
+
+    const prodId = (product.id || product._id)?.toString();
+    if (!prodId) {
+      toast.error("Product ID not available");
+      return;
+    }
+
+    try {
+      if (isFavorite) {
+        if (isOnWishlistPage) {
+          await dispatch(removeFromWishlist({
+            userId: auth.userData.userId,
+            productId: prodId
+          })).unwrap();
+          toast.success("Removed from wishlist!");
+        } else {
+          navigate("/wishlist");
+        }
+      } else {
+        await dispatch(addToWishlist({
+          userId: auth.userData.userId,
+          productId: prodId
+        })).unwrap();
+        toast.success("Added to wishlist!");
+      }
+      // Refresh wishlist data after modification
+      dispatch(fetchWishlist(auth.userData.userId));
+    } catch (error) {
+      toast.error(isFavorite ? "Failed to remove from wishlist" : "Failed to add to wishlist");
+      console.error("Wishlist operation error:", error);
+    }
+  };
+
+  const wishlistTooltip = useMemo(() => {
+    if (isFavorite) {
+      return isOnWishlistPage ? "Remove from wishlist" : "View your wishlist";
+    }
+    return "Add to wishlist";
+  }, [isFavorite, isOnWishlistPage]);
+
   const discountBadge = useMemo(() => {
     if (product.discount) {
       return (
@@ -57,7 +134,7 @@ const ProductCard = ({ product }) => {
             position: "absolute",
             top: isMobile ? 8 : 16,
             left: isMobile ? 8 : 16,
-            backgroundColor: theme.palette.custom?.accent || "red",
+            backgroundColor: theme.palette.error.main,
             px: isMobile ? 0.5 : 1,
             py: isMobile ? 0.25 : 0.5,
             borderRadius: 1,
@@ -67,7 +144,7 @@ const ProductCard = ({ product }) => {
           <Typography
             variant="caption"
             sx={{
-              color: theme.palette.primary.main,
+              color: theme.palette.common.white,
               fontWeight: 600,
               fontSize: isMobile ? "0.65rem" : "0.75rem",
             }}
@@ -78,7 +155,7 @@ const ProductCard = ({ product }) => {
       );
     }
     return null;
-  }, [product.discount, product.percentage_Discount, isMobile, theme.palette.custom, theme.palette.primary.main]);
+  }, [product.discount, product.percentage_Discount, isMobile, theme]);
 
   return (
     <Card
@@ -89,28 +166,20 @@ const ProductCard = ({ product }) => {
         boxShadow: isHovered ? theme.shadows[4] : "none",
         position: "relative",
         width: "100%",
-        maxWidth: {
-          xs: "160px",
-          sm: "200px",
-          md: "100%",
-        },
+        maxWidth: { xs: "160px", sm: "200px", md: "100%" },
         transition: "all 0.3s ease-in-out",
         cursor: "pointer",
       }}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      <Link to={`/product/${product.id}`} style={{ textDecoration: "none" }}>
+      <Link to={`/product/${product.id || product._id}`} style={{ textDecoration: "none" }}>
         <Box sx={{ position: "relative", overflow: "hidden" }}>
           <Box
             sx={{
               position: "relative",
               width: "100%",
-              paddingTop: {
-                xs: "133%",
-                sm: "130%",
-                md: "125%",
-              },
+              paddingTop: { xs: "133%", sm: "130%", md: "125%" },
             }}
           >
             <CardMedia
@@ -149,75 +218,13 @@ const ProductCard = ({ product }) => {
               <Typography
                 variant="h6"
                 sx={{
-                  color: "white",
+                  color: theme.palette.common.white,
                   fontWeight: "bold",
                   fontSize: isMobile ? "0.8rem" : "1rem",
                 }}
               >
                 OUT OF STOCK
               </Typography>
-            </Box>
-          )}
-          {isHovered && !isOutOfStock && (
-            <Box
-              sx={{
-                position: "absolute",
-                top: isMobile ? 4 : 8,
-                right: isMobile ? 4 : 8,
-                display: "flex",
-                flexDirection: "column",
-                gap: isMobile ? 0.5 : 1,
-                zIndex: 2,
-              }}
-            >
-              <Tooltip title={isFavorite ? "Wishlisted" : "Add to wishlist"}>
-                <IconButton
-                  size={isMobile ? "small" : "medium"}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    setIsFavorite((prev) => !prev);
-                  }}
-                  sx={{
-                    backgroundColor: "rgba(255,255,255,0.8)",
-                    "&:hover": { backgroundColor: "rgba(255,255,255,0.9)" },
-                  }}
-                >
-                  {isFavorite ? (
-                    <FavoriteIcon
-                      sx={{
-                        color: theme.palette.custom?.highlight || "red",
-                        fontSize: isMobile ? "1rem" : "1.25rem",
-                      }}
-                    />
-                  ) : (
-                    <FavoriteBorderIcon
-                      sx={{
-                        color: theme.palette.custom?.highlight || "red",
-                        fontSize: isMobile ? "1rem" : "1.25rem",
-                      }}
-                    />
-                  )}
-                </IconButton>
-              </Tooltip>
-              <Tooltip title="Add to Cart">
-                <IconButton
-                  size={isMobile ? "small" : "medium"}
-                  onClick={(e) => {
-                    e.preventDefault();
-                  }}
-                  sx={{
-                    backgroundColor: "rgba(255,255,255,0.8)",
-                    "&:hover": { backgroundColor: "rgba(255,255,255,0.9)" },
-                  }}
-                >
-                  <ShoppingCartOutlinedIcon
-                    sx={{
-                      color: theme.palette.custom?.highlight || "green",
-                      fontSize: isMobile ? "1rem" : "1.25rem",
-                    }}
-                  />
-                </IconButton>
-              </Tooltip>
             </Box>
           )}
         </Box>
@@ -235,11 +242,7 @@ const ProductCard = ({ product }) => {
               textTransform: "uppercase",
               letterSpacing: 1,
               mb: 0.5,
-              fontSize: {
-                xs: "0.6rem",
-                sm: "0.65rem",
-                md: "0.75rem",
-              },
+              fontSize: { xs: "0.6rem", sm: "0.65rem", md: "0.75rem" },
             }}
           >
             {product.categories}
@@ -256,11 +259,7 @@ const ProductCard = ({ product }) => {
             variant="h6"
             sx={{
               color: theme.palette.neutral?.light || "black",
-              fontSize: {
-                xs: "0.75rem",
-                sm: "0.85rem",
-                md: "1rem",
-              },
+              fontSize: { xs: "0.75rem", sm: "0.85rem", md: "1rem" },
               fontWeight: 500,
               mb: 0.5,
               lineHeight: 1.4,
@@ -277,11 +276,7 @@ const ProductCard = ({ product }) => {
             variant="h6"
             sx={{
               color: theme.palette.custom?.highlight || "black",
-              fontSize: {
-                xs: "0.85rem",
-                sm: "0.95rem",
-                md: "1.1rem",
-              },
+              fontSize: { xs: "0.85rem", sm: "0.95rem", md: "1.1rem" },
               fontWeight: 600,
             }}
           >
@@ -290,6 +285,71 @@ const ProductCard = ({ product }) => {
           </Typography>
         </CardContent>
       </Link>
+      <Box
+        sx={{
+          position: "absolute",
+          top: isMobile ? 4 : 8,
+          right: isMobile ? 4 : 8,
+          display: "flex",
+          flexDirection: "column",
+          gap: isMobile ? 0.5 : 1,
+          zIndex: 2,
+        }}
+      >
+        {(isHovered || isFavorite) && (
+          <Tooltip title={wishlistTooltip}>
+            <IconButton
+              size={isMobile ? "small" : "medium"}
+              onClick={(e) => {
+                e.preventDefault();
+                handleWishlistToggle();
+              }}
+              sx={{
+                backgroundColor: "rgba(255,255,255,0.8)",
+                "&:hover": { backgroundColor: "rgba(255,255,255,0.9)" },
+              }}
+            >
+              {isFavorite ? (
+                <FavoriteIcon
+                  sx={{
+                    color: theme.palette.custom?.highlight || "red",
+                    fontSize: isMobile ? "1rem" : "1.25rem",
+                  }}
+                />
+              ) : (
+                <FavoriteBorderIcon
+                  sx={{
+                    color: theme.palette.custom?.highlight || "red",
+                    fontSize: isMobile ? "1rem" : "1.25rem",
+                  }}
+                />
+              )}
+            </IconButton>
+          </Tooltip>
+        )}
+        {isHovered && (
+          <Tooltip title="Add to Cart">
+            <IconButton
+              size={isMobile ? "small" : "medium"}
+              onClick={(e) => {
+                e.preventDefault();
+                // Implement add-to-cart functionality if needed
+              }}
+              sx={{
+                backgroundColor: "rgba(255,255,255,0.8)",
+                "&:hover": { backgroundColor: "rgba(255,255,255,0.9)" },
+              }}
+            >
+              <ShoppingCartOutlinedIcon
+                sx={{
+                  color: theme.palette.custom?.highlight || "green",
+                  fontSize: isMobile ? "1rem" : "1.25rem",
+                }}
+              />
+            </IconButton>
+          </Tooltip>
+        )}
+      </Box>
     </Card>
   );
 };
