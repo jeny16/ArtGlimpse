@@ -117,16 +117,12 @@ const Header = () => {
     <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 2, alignItems: 'center' }}>
       <Link to="/wishlist">
         <IconWrapper>
-          <Badge badgeContent={3} color="error">
-            <Heart size={24} />
-          </Badge>
+          <Heart size={24} />
         </IconWrapper>
       </Link>
       <Link to="/cart">
         <IconWrapper>
-          <Badge badgeContent={2} color="error">
-            <ShoppingCart size={24} />
-          </Badge>
+          <ShoppingCart size={24} />
         </IconWrapper>
       </Link>
       <Link to="/profile">

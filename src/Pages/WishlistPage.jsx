@@ -1,28 +1,48 @@
-// src/pages/WishlistPage.js
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Box, Typography } from "@mui/material";
-import { ProductGrid, Loader, ErrorState, EmptyState } from "../Components/index";
+import { Box, Typography, Button, Container, useTheme } from "@mui/material";
+import { ProductGrid, Loader, ErrorState, EmptyState } from "../Components";
 import { fetchWishlist } from "../store/wishlistSlice";
+import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
 const WishlistPage = () => {
     const dispatch = useDispatch();
-    // For demonstration, we're hardcoding a userId.
-    // In a real app, you'd get the logged-in user's id from the auth slice or context.
-    const userId = "someUserId";
-
-    // Get wishlist state from Redux store
-    const { wishlist, isLoading, error } = useSelector((state) => state.wishlist);
+    const navigate = useNavigate();
+    const theme = useTheme();
+    const auth = useSelector((state) => state.auth);
+    const userId = auth.userData?.userId;
 
     useEffect(() => {
-        dispatch(fetchWishlist(userId));
+        if (userId) {
+            dispatch(fetchWishlist(userId))
+                .unwrap()
+                .catch((error) => {
+                    toast.error("Failed to load wishlist");
+                    console.error("Error fetching wishlist:", error);
+                });
+        }
     }, [dispatch, userId]);
 
-    if (isLoading) {
-        return <Loader />;
-    }
+    const { wishlist, isLoading, error } = useSelector((state) => state.wishlist);
+    console.log("wishlist", wishlist);
 
-    if (error) {
+    // Filter out products that lack essential fields (e.g., name)
+    const validProducts = useMemo(() => {
+        if (wishlist?.products) {
+            return wishlist.products
+                .filter(p => {
+                    // Handle both direct product objects and nested productId objects
+                    const product = p.productId || p;
+                    return product && product.name && product.name.trim() !== "";
+                })
+                .map(p => p.productId || p); // Normalize the product structure
+        }
+        return [];
+    }, [wishlist]);
+
+    if (isLoading) return <Loader />;
+    if (error)
         return (
             <ErrorState
                 title="Wishlist Error"
@@ -31,29 +51,60 @@ const WishlistPage = () => {
                 onRetry={() => dispatch(fetchWishlist(userId))}
             />
         );
-    }
 
-    // Assuming wishlist is an object with a 'products' array
-    const products = wishlist?.products || [];
-
-    if (products.length === 0) {
+    if (validProducts.length === 0)
         return (
             <EmptyState
                 title="Your wishlist is empty"
                 description="Looks like you haven't added any products to your wishlist yet. Start exploring and add your favorite products."
                 buttonText="Explore Products"
-                redirectTo="/"
+                onClick={() => navigate("/")}
             />
         );
-    }
 
     return (
-        <Box sx={{ p: 2 }}>
-            <Typography variant="h4" sx={{ mb: 2, textAlign: "center" }}>
+        <Container maxWidth="lg" sx={{ pt: 24, pb: 10 }}>
+            <Typography variant="h3"
+                component="h2"
+                sx={{
+                    textAlign: "center",
+                    mb: { xs: 4, sm: 5, md: 6 },
+                    color: "#814d0b",
+                    fontWeight: 650,
+                    fontSize: {
+                        xs: '1.8rem',
+                        sm: '2.2rem',
+                        md: '2.5rem',
+                        lg: '3rem'
+                    }
+                }}
+            >
                 Your Wishlist
             </Typography>
-            <ProductGrid products={products} />
-        </Box>
+            <ProductGrid products={validProducts} />
+            <Box sx={{ mt: 4, textAlign: "center" }}>
+                <Button
+                    sx={{
+                        backgroundColor: 'transparent',
+                        color: theme.palette.custom.highlight,
+                        border: `2px solid ${theme.palette.custom.highlight}`,
+                        textTransform: 'none',
+                        fontSize: '1rem',
+                        px: 3,
+                        py: 1,
+                        transition: 'all 0.3s ease',
+                        '&:hover': {
+                            backgroundColor: theme.palette.custom.highlight,
+                            color: theme.palette.primary.main,
+                            borderColor: theme.palette.custom.highlight,
+                        },
+                    }}
+                    onClick={() => navigate("/")}
+                >
+                    Back to Home
+                </Button>
+            </Box>
+        </Container>
     );
 };
 
