@@ -20,21 +20,27 @@ import {
 } from "@mui/material";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import CloseIcon from "@mui/icons-material/Close";
-import { ProductGrid, FilterSidebar, Loader } from "../Components/index";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchProducts } from "../store/productSlice";
+import { ProductGrid, FilterSidebar, Loader } from "../Components";
+
+const ITEMS_PER_PAGE = 16;
 
 const ShopPage = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+
   const [showFilters, setShowFilters] = useState(!isMobile);
   const [sortBy, setSortBy] = useState("featured");
   const [page, setPage] = useState(1);
-  const ITEMS_PER_PAGE = 16;
 
-  // State for filters (stored in lowercase)
+  // Filters
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [priceRange, setPriceRange] = useState([0, 10000]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [inStockOnly, setInStockOnly] = useState(false);
+  const [discountFilters, setDiscountFilters] = useState([]);
+  const [selectedCountries, setSelectedCountries] = useState([]);
 
   // Fetch products from Redux store
   const dispatch = useDispatch();
@@ -46,35 +52,72 @@ const ShopPage = () => {
     }
   }, [dispatch, products.length]);
 
-  // Categories as provided by the filter list
-  const categories = useMemo(
-    () => [
-      "Toys & Collectibles",
-      "Bags & Wallets",
-      "Resin Art & Decor",
-      "Home Decor",
-      "Jewelry & Accessories",
-    ],
-    []
-  );
-
-  // Filter and sort products using product.categories (with an "s")
-  const filteredAndSortedProducts = useMemo(() => {
-    let filtered = products.filter((product) => {
-      let productCategory = "";
-      // Use product.categories instead of product.category
-      if (typeof product.categories === "string") {
-        productCategory = product.categories.toLowerCase().trim();
-      } else if (product.categories && product.categories.name) {
-        productCategory = product.categories.name.toLowerCase().trim();
+  const allCategories = useMemo(() => {
+    const unique = new Set();
+    products.forEach((p) => {
+      if (typeof p.categories === "string") {
+        unique.add(p.categories.trim());
       }
-      const matchesCategory =
-        selectedCategories.length === 0 ||
-        selectedCategories.includes(productCategory);
-      const matchesPrice =
-        product.price >= priceRange[0] && product.price <= priceRange[1];
-      return matchesCategory && matchesPrice;
     });
+    return Array.from(unique);
+  }, [products]);
+
+  const countries = useMemo(() => {
+    const countrySet = new Set();
+    products.forEach((p) => {
+      if (Array.isArray(p.countries_Available)) {
+        p.countries_Available.forEach((c) => countrySet.add(c));
+      }
+    });
+    return Array.from(countrySet);
+  }, [products]);
+
+  const filteredAndSortedProducts = useMemo(() => {
+    let filtered = [...products];
+
+    if (selectedCategories.length > 0) {
+      filtered = filtered.filter((product) => {
+        const productCat =
+          typeof product.categories === "string"
+            ? product.categories.toLowerCase().trim()
+            : "";
+        return selectedCategories.includes(productCat);
+      });
+    }
+
+    filtered = filtered.filter(
+      (product) =>
+        product.price >= priceRange[0] && product.price <= priceRange[1]
+    );
+
+    if (inStockOnly) {
+      filtered = filtered.filter((product) => product.stock > 0);
+    }
+
+    if (discountFilters.length > 0) {
+      filtered = filtered.filter((product) => {
+        if (!product.discount || !product.percentage_Discount) return false;
+        return discountFilters.some(
+          (dValue) => product.percentage_Discount >= dValue
+        );
+      });
+    }
+
+    if (selectedCountries.length > 0) {
+      filtered = filtered.filter((product) => {
+        if (!Array.isArray(product.countries_Available)) return false;
+        return product.countries_Available.some((c) =>
+          selectedCountries.includes(c)
+        );
+      });
+    }
+
+    if (searchQuery.trim() !== "") {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter((product) =>
+        product.name.toLowerCase().includes(query)
+      );
+    }
 
     filtered.sort((a, b) => {
       switch (sortBy) {
@@ -91,50 +134,101 @@ const ShopPage = () => {
     });
 
     return filtered;
-  }, [products, selectedCategories, priceRange, sortBy]);
+  }, [
+    products,
+    selectedCategories,
+    priceRange,
+    inStockOnly,
+    discountFilters,
+    selectedCountries,
+    searchQuery,
+    sortBy,
+  ]);
 
-  // Pagination logic
   const paginatedProducts = useMemo(() => {
     const startIndex = (page - 1) * ITEMS_PER_PAGE;
-    return filteredAndSortedProducts.slice(
-      startIndex,
-      startIndex + ITEMS_PER_PAGE
-    );
+    return filteredAndSortedProducts.slice(startIndex, startIndex + ITEMS_PER_PAGE);
   }, [filteredAndSortedProducts, page]);
 
   const pageCount = Math.ceil(filteredAndSortedProducts.length / ITEMS_PER_PAGE);
 
-  const handlers = {
-    sortChange: (event) => {
-      setSortBy(event.target.value);
-      setPage(1);
-    },
-    pageChange: (event, value) => setPage(value),
-    filterClose: () => setShowFilters(false),
-    // Normalize category to lowercase and trim whitespace when storing
-    categoryChange: (category, isChecked) => {
-      const normalizedCategory = category.toLowerCase().trim();
-      setSelectedCategories((prev) =>
-        isChecked
-          ? [...prev, normalizedCategory]
-          : prev.filter((cat) => cat !== normalizedCategory)
-      );
-      setPage(1);
-    },
-    priceRangeChange: (newRange) => {
-      setPriceRange(newRange);
-      setPage(1);
-    },
+  const handleSortChange = (event) => {
+    setSortBy(event.target.value);
+    setPage(1);
+  };
+
+  const handlePageChange = (event, value) => {
+    setPage(value);
+  };
+
+  const handleFilterClose = () => {
+    setShowFilters(false);
+  };
+
+  const handleCategoryChange = (category, isChecked) => {
+    const normalizedCategory = category.toLowerCase().trim();
+    setSelectedCategories((prev) =>
+      isChecked
+        ? [...prev, normalizedCategory]
+        : prev.filter((cat) => cat !== normalizedCategory)
+    );
+    setPage(1);
+  };
+
+  const handlePriceRangeChange = (newRange) => {
+    setPriceRange(newRange);
+    setPage(1);
+  };
+
+  const handleSearchQueryChange = (value) => {
+    setSearchQuery(value);
+    setPage(1);
+  };
+
+  const handleInStockOnlyChange = (checked) => {
+    setInStockOnly(checked);
+    setPage(1);
+  };
+
+  const handleDiscountChange = (discountValue, isChecked) => {
+    setDiscountFilters((prev) =>
+      isChecked
+        ? [...prev, discountValue]
+        : prev.filter((d) => d !== discountValue)
+    );
+    setPage(1);
+  };
+
+  const handleCountryChange = (country, isChecked) => {
+    setSelectedCountries((prev) =>
+      isChecked ? [...prev, country] : prev.filter((c) => c !== country)
+    );
+    setPage(1);
+  };
+
+  // New clearAll function that resets all filters
+  const clearAllFilters = () => {
+    setSelectedCategories([]);
+    setPriceRange([0, 10000]);
+    setSearchQuery("");
+    setInStockOnly(false);
+    setDiscountFilters([]);
+    setSelectedCountries([]);
+    setPage(1);
   };
 
   const FilterSidebarContent = (
     <Paper
-      elevation={isMobile ? 0 : 3}
+      elevation={0}
       sx={{
         height: "100%",
-        p: 3,
+        p: 2,
         borderRadius: isMobile ? 0 : 2,
         backgroundColor: theme.palette.background.paper,
+        // Updated width so it does not exceed 250px
+        maxWidth: { xs: "85vw", sm: 250, md: 300 },
+        minWidth: { xs: "85vw", sm: 250, md: 250 },
+        border: `1px solid ${theme.palette.divider}`,
       }}
     >
       <Box
@@ -149,18 +243,29 @@ const ShopPage = () => {
           Filters
         </Typography>
         {isMobile && (
-          <IconButton onClick={handlers.filterClose} size="small">
+          <IconButton onClick={handleFilterClose} size="small">
             <CloseIcon />
           </IconButton>
         )}
       </Box>
       <Divider sx={{ mb: 3 }} />
+
       <FilterSidebar
-        categories={categories}
+        allCategories={allCategories}
         selectedCategories={selectedCategories}
-        onCategoryChange={handlers.categoryChange}
+        onCategoryChange={handleCategoryChange}
         priceRange={priceRange}
-        onPriceRangeChange={handlers.priceRangeChange}
+        onPriceRangeChange={handlePriceRangeChange}
+        searchQuery={searchQuery}
+        onSearchQueryChange={handleSearchQueryChange}
+        inStockOnly={inStockOnly}
+        onInStockOnlyChange={handleInStockOnlyChange}
+        discountFilters={discountFilters}
+        onDiscountChange={handleDiscountChange}
+        countries={countries}
+        selectedCountries={selectedCountries}
+        onCountryChange={handleCountryChange}
+        onClearAllFilters={clearAllFilters}
       />
     </Paper>
   );
@@ -172,9 +277,10 @@ const ShopPage = () => {
         backgroundColor: theme.palette.background.default,
         pt: { xs: 3, md: 4 },
         pb: { xs: 4, md: 6 },
+        mt: 10,
       }}
     >
-      <Container maxWidth="xl" sx={{ mt: 20, px: { xs: 2, md: 4 } }}>
+      <Container maxWidth="lg" sx={{ mt: 10, px: { xs: 2, md: 4 } }}>
         {isMobile && (
           <Button
             variant="outlined"
@@ -185,10 +291,10 @@ const ShopPage = () => {
               width: "100%",
               textTransform: "none",
               fontWeight: 600,
-              borderColor: theme.palette.primary.main,
-              color: theme.palette.primary.main,
+              borderColor: theme.palette.custom.highlight,
+              color: theme.palette.custom.highlight,
               "&:hover": {
-                borderColor: theme.palette.primary.dark,
+                borderColor: theme.palette.custom.highlight,
                 backgroundColor: theme.palette.action.hover,
               },
             }}
@@ -197,57 +303,138 @@ const ShopPage = () => {
           </Button>
         )}
 
-        <Box
-          sx={{
-            display: "flex",
-            gap: 4,
-            position: "relative",
-          }}
-        >
+        <Box sx={{ display: "flex", gap: 3, position: "relative" }}>
           {isMobile ? (
             <Drawer
               anchor="left"
               open={showFilters}
-              onClose={handlers.filterClose}
+              onClose={handleFilterClose}
               PaperProps={{
-                sx: { width: "85%", maxWidth: 360 },
+                sx: { width: "85%", maxWidth: 250 },
               }}
             >
               {FilterSidebarContent}
             </Drawer>
           ) : (
             <Fade in={true}>
-              <Box sx={{ width: 300, flexShrink: 0 }}>
-                {FilterSidebarContent}
-              </Box>
+              <Box sx={{ flexShrink: 0 }}>{FilterSidebarContent}</Box>
             </Fade>
           )}
 
-          <Box sx={{ flex: 1 }}>
-            <Paper
+          <Box sx={{ flex: 1, position: "relative" }}>
+            <Box
               sx={{
-                p: 2,
-                mb: 3,
                 display: "flex",
-                alignItems: "center",
                 justifyContent: "space-between",
+                alignItems: "center",
+                mb: 3,
+                borderBottom: `1px solid ${theme.palette.custom.highlight}`,
+                pb: 1,
               }}
-              elevation={2}
             >
-              <FormControl fullWidth size="small">
-                <InputLabel>Sort By</InputLabel>
+              <Typography variant="body2" color="text.secondary">
+                Showing {paginatedProducts.length} of {filteredAndSortedProducts.length} products
+              </Typography>
+              <FormControl
+                size="small"
+                sx={{
+                  minWidth: 160,
+                  background: "transparent",
+                }}
+              >
+                <InputLabel
+                  sx={{
+                    color: theme.palette.custom.highlight,
+                    "&.Mui-focused": {
+                      color: theme.palette.custom.highlight,
+                    },
+                    "&.MuiInputLabel-shrink": {
+                      color: theme.palette.custom.highlight,
+                    },
+                  }}
+                >
+                  Sort By
+                </InputLabel>
                 <Select
                   value={sortBy}
-                  onChange={handlers.sortChange}
+                  onChange={handleSortChange}
                   label="Sort By"
+                  sx={{
+                    background: "transparent",
+                    "& .MuiOutlinedInput-notchedOutline": {
+                      borderColor: theme.palette.custom.highlight,
+                    },
+                    "&:hover .MuiOutlinedInput-notchedOutline": {
+                      borderColor: theme.palette.custom.highlight,
+                    },
+                    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                      borderColor: theme.palette.custom.highlight,
+                    },
+                    color: theme.palette.custom.highlight,
+                    "& .MuiSvgIcon-root": {
+                      color: theme.palette.custom.highlight,
+                    },
+                  }}
                 >
-                  <MenuItem value="featured">Featured</MenuItem>
-                  <MenuItem value="newest">Newest</MenuItem>
-                  <MenuItem value="price_low">Price: Low to High</MenuItem>
-                  <MenuItem value="price_high">Price: High to Low</MenuItem>
+                  <MenuItem
+                    value="featured"
+                    sx={{
+                      "&.Mui-selected": {
+                        backgroundColor: theme.palette.custom.highlight,
+                        color: theme.palette.getContrastText(theme.palette.custom.highlight),
+                      },
+                      "&.Mui-selected:hover": {
+                        backgroundColor: theme.palette.custom.highlight,
+                      },
+                    }}
+                  >
+                    Featured
+                  </MenuItem>
+                  <MenuItem
+                    value="newest"
+                    sx={{
+                      "&.Mui-selected": {
+                        backgroundColor: theme.palette.custom.highlight,
+                        color: theme.palette.getContrastText(theme.palette.custom.highlight),
+                      },
+                      "&.Mui-selected:hover": {
+                        backgroundColor: theme.palette.custom.highlight,
+                      },
+                    }}
+                  >
+                    Newest
+                  </MenuItem>
+                  <MenuItem
+                    value="price_low"
+                    sx={{
+                      "&.Mui-selected": {
+                        backgroundColor: theme.palette.custom.highlight,
+                        color: theme.palette.getContrastText(theme.palette.custom.highlight),
+                      },
+                      "&.Mui-selected:hover": {
+                        backgroundColor: theme.palette.custom.highlight,
+                      },
+                    }}
+                  >
+                    Price: Low to High
+                  </MenuItem>
+                  <MenuItem
+                    value="price_high"
+                    sx={{
+                      "&.Mui-selected": {
+                        backgroundColor: theme.palette.custom.highlight,
+                        color: theme.palette.getContrastText(theme.palette.custom.highlight),
+                      },
+                      "&.Mui-selected:hover": {
+                        backgroundColor: theme.palette.custom.highlight,
+                      },
+                    }}
+                  >
+                    Price: High to Low
+                  </MenuItem>
                 </Select>
               </FormControl>
-            </Paper>
+            </Box>
 
             {isLoading ? (
               <Box
@@ -266,22 +453,20 @@ const ShopPage = () => {
               </Alert>
             ) : (
               <>
-                <Box sx={{ my: 3 }}>
-                  <Typography variant="body2" color="text.secondary">
-                    Showing {paginatedProducts.length} of{" "}
-                    {filteredAndSortedProducts.length} products
-                  </Typography>
-                </Box>
-                <ProductGrid products={paginatedProducts} />
+                <ProductGrid products={paginatedProducts} columns={3} />
+
                 {pageCount > 1 && (
-                  <Box
-                    sx={{ mt: 4, display: "flex", justifyContent: "center" }}
-                  >
+                  <Box sx={{ mt: 4, display: "flex", justifyContent: "center" }}>
                     <Pagination
                       count={pageCount}
                       page={page}
-                      onChange={handlers.pageChange}
-                      color="primary"
+                      onChange={handlePageChange}
+                      sx={{
+                        "& .MuiPaginationItem-root.Mui-selected": {
+                          backgroundColor: theme.palette.custom.highlight,
+                          color: "#fff",
+                        },
+                      }}
                       size={isMobile ? "small" : "medium"}
                     />
                   </Box>

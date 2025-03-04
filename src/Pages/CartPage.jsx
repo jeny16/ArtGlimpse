@@ -14,6 +14,7 @@ import {
     DonationSection,
     CommonButton,
 } from '../Components/index';
+import ShoppingCartOutlinedIcon from '@mui/icons-material/ShoppingCartOutlined';
 
 const CartPage = () => {
     const dispatch = useDispatch();
@@ -57,7 +58,13 @@ const CartPage = () => {
     }
 
     if (!cart || !cart.items || cart.items.length === 0) {
-        return <EmptyState />;
+        return <EmptyState
+            title="Your cart is empty"
+            description="Looks like you haven’t added anything to your cart yet. Start shopping now and easily check out when you're ready."
+            buttonText="SHOP NOW"
+            redirectTo="/"
+            IconComponent={ShoppingCartOutlinedIcon}
+        />;
     }
 
     return (
