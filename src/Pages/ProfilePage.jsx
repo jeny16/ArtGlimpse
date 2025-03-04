@@ -1,225 +1,157 @@
-import React, { memo, useState } from "react";
+import React, { useState } from 'react';
 import {
   Box,
-  Container,
-  Grid,
   Typography,
-  Paper,
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemText,
-  Chip,
-  Divider,
-  Button,
-  Rating,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
-} from "@mui/material";
-import { styled } from "@mui/material/styles";
+  Container,
+  ThemeProvider,
+  CssBaseline,
+  Paper
+} from '@mui/material';
+import ProfileSidebar from '../Components/ProfileSidebar';
+import ProfileDetails from '../Components/ProfileDetails';
+import Addresses from '../Components/Addresses';
+import Orders from '../Components/Orders';
+import theme from '../Styles/theme';
 
-// Dummy order data
-const dummyOrders = [
-  {
-    id: "E202302347816",
-    status: "Delivered",
-    deliveredOn: "Fri, 2 Feb",
-    productName: "Men's Jacket",
-  },
-  {
-    id: "FNY674454763",
-    status: "Delivered",
-    deliveredOn: "Sun, 5 Feb",
-    productName: "Women's Kurti",
-  },
-];
+const ProfilePage = () => {
+  const [activeSection, setActiveSection] = useState('profile');
 
-const SideMenuPaper = styled(Paper)(({ theme }) => ({
-  borderRadius: theme.shape.borderRadius,
-  padding: theme.spacing(2),
-  minWidth: 220,
-  [theme.breakpoints.down("sm")]: {
-    minWidth: "auto",
-  },
-}));
+  const userData = {
+    fullName: 'Soham Sareriya',
+    mobileNumber: '8128781512',
+    email: 'sohamsk2425@gmail.com',
+    gender: 'MALE',
+    dateOfBirth: '',
+    location: '',
+    alternateMobile: '',
+    hintName: '',
+  };
 
-const ProfileDashboard = () => {
-  // Example: controlling the "Last x months" filter
-  const [timeFilter, setTimeFilter] = useState("6");
+  const addressData = [
+    {
+      id: 1,
+      name: 'Soham Sareriya',
+      addressLine1: 'Indus University,Rancharda,gruh garden road',
+      addressLine2: 'Palodia',
+      city: 'Ahmedabad',
+      state: 'Gujarat',
+      pincode: '380058',
+      mobile: '8128781512',
+      addressType: 'HOME',
+      isDefault: true
+    },
+    {
+      id: 2,
+      name: 'Soham Sareriya',
+      addressLine1: 'B2-JEEVANDEEP SOCIETY,NR.PALLA...',
+      addressLine2: 'Thaltej',
+      city: 'Ahmedabad',
+      state: '',
+      pincode: '380054',
+      mobile: '',
+      addressType: 'HOME',
+      isDefault: false
+    },
+    {
+      id: 3,
+      name: 'Soham Sareriya',
+      addressLine1: 'Indus University,Gruh Gardens ...',
+      addressLine2: 'Rancharada',
+      city: 'Ahmedabad',
+      state: '',
+      pincode: '382115',
+      mobile: '',
+      addressType: 'HOME',
+      isDefault: false
+    }
+  ];
 
-  const handleTimeFilterChange = (event) => {
-    setTimeFilter(event.target.value);
+  const renderContent = () => {
+    switch (activeSection) {
+      case 'profile':
+        return <ProfileDetails userData={userData} />;
+      case 'addresses':
+        return <Addresses addresses={addressData} />;
+      case 'orders':
+        return <Orders userData={userData} />;
+      default:
+        return <ProfileDetails userData={userData} />;
+    }
   };
 
   return (
-    <Box sx={{ mt: 20, mb: 8 }}>
-      <Container maxWidth="lg">
-        <Grid container spacing={4}>
-          {/* Left Column: Side Menu */}
-          <Grid item xs={12} md={3}>
-            <SideMenuPaper elevation={1}>
-              <Typography variant="h6" sx={{ mb: 1 }}>
-                My Account
-              </Typography>
-              <List disablePadding>
-                <ListItem disablePadding>
-                  <ListItemButton>
-                    <ListItemText primary="Orders & Credits" />
-                    <Chip
-                      label="New"
-                      color="error"
-                      size="small"
-                      sx={{ ml: 1 }}
-                    />
-                  </ListItemButton>
-                </ListItem>
-                <ListItem disablePadding>
-                  <ListItemButton>
-                    <ListItemText primary="AJIO Wallet" />
-                    <Chip
-                      label="New"
-                      color="error"
-                      size="small"
-                      sx={{ ml: 1 }}
-                    />
-                  </ListItemButton>
-                </ListItem>
-                <ListItem disablePadding>
-                  <ListItemButton>
-                    <ListItemText primary="Invite Friends" />
-                    <Chip
-                      label="New"
-                      color="error"
-                      size="small"
-                      sx={{ ml: 1 }}
-                    />
-                  </ListItemButton>
-                </ListItem>
-                <ListItem disablePadding>
-                  <ListItemButton>
-                    <ListItemText primary="My Rewards" />
-                  </ListItemButton>
-                </ListItem>
-                <ListItem disablePadding>
-                  <ListItemButton>
-                    <ListItemText primary="Customer Care" />
-                  </ListItemButton>
-                </ListItem>
-              </List>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <Container maxWidth="lg" sx={{ py: 5, my: 20 }}>
+        <Paper
+          elevation={0}
+          sx={{
+            p: 4,
+            mb: 4,
+            background: 'linear-gradient(135deg, #fdf7ed 0%, #fefaf4 100%)',
+            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.05)',
+            borderLeft: '4px solid',
+            borderColor: 'custom.highlight',
+            transition: 'all 0.3s ease'
+          }}
+        >
+          <Typography
+            variant="h5"
+            component="h1"
+            fontWeight="bold"
+            sx={{
+              color: 'custom.highlight',
+              mb: 1,
+              fontFamily: 'Raleway, sans-serif',
+              position: 'relative',
+              '&:after': {
+                content: '""',
+                position: 'absolute',
+                bottom: -8,
+                left: 0,
+                width: 40,
+                height: 3,
+                backgroundColor: 'custom.highlight',
+                borderRadius: 4
+              }
+            }}
+          >
+            My Account
+          </Typography>
+          <Typography
+            variant="body1"
+            sx={{
+              color: 'text.secondary',
+              fontWeight: 500,
+              mt: 2
+            }}
+          >
+            Welcome back, Soham
+          </Typography>
+        </Paper>
 
-              <Divider sx={{ my: 2 }} />
+        <Box sx={{
+          display: 'flex',
+          flexDirection: { xs: 'column', md: 'row' },
+          gap: 4
+        }}>
+          <Box sx={{
+            width: { xs: '100%', md: '280px' },
+            flexShrink: 0
+          }}>
+            <ProfileSidebar activeSection={activeSection} setActiveSection={setActiveSection} />
+          </Box>
 
-              <Typography variant="h6" sx={{ mb: 1 }}>
-                Profile
-              </Typography>
-              <List disablePadding>
-                <ListItem disablePadding>
-                  <ListItemButton>
-                    <ListItemText primary="Personal Information" />
-                  </ListItemButton>
-                </ListItem>
-                <ListItem disablePadding>
-                  <ListItemButton>
-                    <ListItemText primary="Address Book" />
-                  </ListItemButton>
-                </ListItem>
-                <ListItem disablePadding>
-                  <ListItemButton>
-                    <ListItemText primary="Payments" />
-                  </ListItemButton>
-                </ListItem>
-              </List>
-            </SideMenuPaper>
-          </Grid>
-
-          {/* Right Column: Main Content */}
-          <Grid item xs={12} md={9}>
-            <Box>
-              <Typography variant="h4" fontWeight="bold" sx={{ mb: 1 }}>
-                My Orders
-              </Typography>
-              <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
-                Track your open orders & view the summary of your past orders
-              </Typography>
-
-              {/* Filter Row */}
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  flexWrap: "wrap",
-                  mb: 3,
-                }}
-              >
-                <FormControl size="small" sx={{ minWidth: 150 }}>
-                  <InputLabel>Last x months</InputLabel>
-                  <Select
-                    value={timeFilter}
-                    label="Last x months"
-                    onChange={handleTimeFilterChange}
-                  >
-                    <MenuItem value="3">Last 3 months</MenuItem>
-                    <MenuItem value="6">Last 6 months</MenuItem>
-                    <MenuItem value="9">Last 9 months</MenuItem>
-                    <MenuItem value="12">Last 12 months</MenuItem>
-                  </Select>
-                </FormControl>
-              </Box>
-
-              {/* Orders List */}
-              {dummyOrders.map((order) => (
-                <Paper
-                  key={order.id}
-                  elevation={0}
-                  sx={{
-                    p: 2,
-                    mb: 3,
-                    border: "1px solid",
-                    borderColor: (theme) => theme.palette.divider,
-                    borderRadius: 2,
-                  }}
-                >
-                  <Typography
-                    variant="body2"
-                    fontWeight="bold"
-                    color="text.secondary"
-                  >
-                    Order ID: {order.id}
-                  </Typography>
-                  <Box sx={{ mt: 1 }}>
-                    <Typography variant="body1" sx={{ fontWeight: 600 }}>
-                      {order.status}
-                    </Typography>
-                    <Typography variant="caption" color="text.secondary">
-                      on {order.deliveredOn}
-                    </Typography>
-                  </Box>
-                  <Box sx={{ mt: 1, display: "flex", gap: 2 }}>
-                    <Button
-                      variant="outlined"
-                      size="small"
-                      sx={{ textTransform: "none" }}
-                    >
-                      Exchange Order
-                    </Button>
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                      <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                        Rate this Product:
-                      </Typography>
-                      <Rating size="small" />
-                    </Box>
-                  </Box>
-                </Paper>
-              ))}
-            </Box>
-          </Grid>
-        </Grid>
+          <Box sx={{
+            flexGrow: 1,
+            width: { xs: '100%', md: 'calc(100% - 320px)' }
+          }}>
+            {renderContent()}
+          </Box>
+        </Box>
       </Container>
-    </Box>
+    </ThemeProvider>
   );
 };
 
-export default memo(ProfileDashboard);
+export default ProfilePage;

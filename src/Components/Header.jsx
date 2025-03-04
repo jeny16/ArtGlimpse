@@ -55,7 +55,6 @@ const IconWrapper = styled(IconButton)(({ theme }) => ({
 
 const Header = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [profileMenuAnchor, setProfileMenuAnchor] = useState(null);
   const theme = useTheme();
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -63,18 +62,9 @@ const Header = () => {
   // Get isLoggedIn from Redux
   const isLoggedIn = useSelector((state) => state.auth.isLoggedIn);
 
-  const handleProfileMenuOpen = (event) => {
-    setProfileMenuAnchor(event.currentTarget);
-  };
-
-  const handleProfileMenuClose = () => {
-    setProfileMenuAnchor(null);
-  };
-
   const handleLogout = () => {
     authService.logout();
     dispatch(logout());
-    handleProfileMenuClose();
     navigate('/login');
   };
 
@@ -126,7 +116,8 @@ const Header = () => {
           <ShoppingCart size={24} />
         </IconWrapper>
       </Link>
-      <IconWrapper onClick={handleProfileMenuOpen}>
+      {/* Redirect directly to the profile page on click */}
+      <IconWrapper onClick={() => navigate("/profile")}>
         <User size={24} />
       </IconWrapper>
     </Box>
@@ -156,13 +147,7 @@ const Header = () => {
             <CloseIcon />
           </IconButton>
         </Box>
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            width: '100%',
-          }}
-        >
+        <Box sx={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
           <Link to="/" style={{ width: '100%' }}>
             <StyledButton onClick={() => setDrawerOpen(false)}>
               Home
@@ -350,35 +335,6 @@ const Header = () => {
       </StyledAppBar>
 
       {renderMobileMenu()}
-
-      {/* Enhanced Profile Drop Down Menu */}
-      <Menu
-        anchorEl={profileMenuAnchor}
-        open={Boolean(profileMenuAnchor)}
-        onClose={handleProfileMenuClose}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-      >
-        <MenuItem onClick={() => { handleProfileMenuClose(); navigate("/profile"); }}>
-          <ListItemIcon>
-            <User size={20} />
-          </ListItemIcon>
-          <ListItemText primary="Profile Dashboard" />
-        </MenuItem>
-        <MenuItem onClick={() => { handleProfileMenuClose(); navigate("/orders"); }}>
-          <ListItemIcon>
-            <FileText size={20} />
-          </ListItemIcon>
-          <ListItemText primary="Orders" />
-        </MenuItem>
-        <Divider />
-        <MenuItem onClick={handleLogout}>
-          <ListItemIcon>
-            <LogOut size={20} />
-          </ListItemIcon>
-          <ListItemText primary="Logout" />
-        </MenuItem>
-      </Menu>
     </>
   );
 };

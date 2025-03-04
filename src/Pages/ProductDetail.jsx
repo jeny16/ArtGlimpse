@@ -1,58 +1,38 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchProductById } from '../store/productSlice';
+import { addToCart, fetchCart } from '../store/cartSlice';
+import { addToWishlist, fetchWishlist } from '../store/wishlistSlice';
+import { toast } from 'react-toastify';
+
 import {
   Box,
   Container,
-  Grid,
-  Typography,
-  CardMedia,
-  Chip,
-  Rating,
-  CircularProgress,
-  Button,
-  Paper,
   Stack,
+  Typography,
+  CircularProgress,
+  Paper,
   IconButton,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
-  Tabs,
-  Tab,
+  Divider,
   useTheme,
-  useMediaQuery
+  useMediaQuery,
+  Rating,
+  Chip
 } from '@mui/material';
-import { styled } from '@mui/material/styles';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+
+import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import ShoppingCartOutlinedIcon from '@mui/icons-material/ShoppingCartOutlined';
 import FavoriteIcon from '@mui/icons-material/Favorite';
+import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import ShareIcon from '@mui/icons-material/Share';
 import VerifiedIcon from '@mui/icons-material/Verified';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
-
-const ImageWrapper = styled(Box)(({ theme }) => ({
-  position: 'relative',
-  borderRadius: theme.shape.borderRadius * 2,
-  overflow: 'hidden',
-  boxShadow: theme.shadows[4],
-  transition: 'transform 0.3s ease',
-  '&:hover': {
-    transform: 'scale(1.02)',
-  },
-}));
-
-const DiscountChip = styled(Chip)(({ theme }) => ({
-  position: 'absolute',
-  top: theme.spacing(2),
-  left: theme.spacing(2),
-  backgroundColor: theme.palette.error.main,
-  color: theme.palette.error.contrastText,
-  fontWeight: 600,
-  borderRadius: theme.shape.borderRadius,
-}));
+import InventoryIcon from '@mui/icons-material/Inventory';
+import { ImageGrid, InfoTabs, ActionButton, PriceDisplay, FeatureBadge, ChipGroup } from '../Components/index';
 
 const ProductDetail = () => {
   const theme = useTheme();
@@ -60,193 +40,422 @@ const ProductDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  
-  const { product, isLoading, error } = useSelector(state => state.product);
-  
-  // For Tabs (if you want to add multiple tabs later)
+
+  // Redux slices
+  const { product, isLoading, error } = useSelector((state) => state.product);
+  const { cart } = useSelector((state) => state.cart);
+  const { wishlist } = useSelector((state) => state.wishlist);
+  const { userData, isLoggedIn } = useSelector((state) => state.auth);
+
+  // Compute product ID using id or _id
+  const prodId = useMemo(() => (product?.id || product?._id)?.toString(), [product]);
+
+  // Tab state for InfoTabs
   const [tabValue, setTabValue] = useState(0);
-  const handleTabChange = (event, newValue) => {
-    setTabValue(newValue);
-  };
-  
+  const handleTabChange = (event, newValue) => setTabValue(newValue);
+
   useEffect(() => {
     dispatch(fetchProductById(id));
   }, [dispatch, id]);
-  
+
+  // ---------------------------
+  // Add to Cart or View Cart
+  // ---------------------------
+  const handleCartClick = async () => {
+    if (!isLoggedIn || !userData?.userId) {
+      toast.error("Please log in to add to cart");
+      return;
+    }
+    if (!prodId) {
+      toast.error("Product ID not available");
+      return;
+    }
+
+    // Updated cart check: checks for productId or product.id/_id
+    const inCart = cart?.items?.some(item => {
+      const itemId = (item.productId || item.product?.id || item.product?._id)?.toString();
+      return itemId === prodId;
+    });
+
+    if (inCart) {
+      navigate("/cart");
+      return;
+    }
+
+    try {
+      await dispatch(
+        addToCart({
+          userId: userData.userId,
+          productId: prodId,
+          quantity: 1,
+        })
+      ).unwrap();
+      toast.success("Added to cart!");
+      // Refresh cart data so the button text updates
+      dispatch(fetchCart(userData.userId));
+    } catch (err) {
+      toast.error("Failed to add to cart");
+      console.error("Cart error:", err);
+    }
+  };
+
+  // ---------------------------
+  // Add to Wishlist or View Wishlist
+  // ---------------------------
+  const handleWishlistClick = async () => {
+    if (!isLoggedIn || !userData?.userId) {
+      toast.error("Please log in to modify your wishlist");
+      return;
+    }
+    if (!prodId) {
+      toast.error("Product ID not available");
+      return;
+    }
+
+    const inWishlist = wishlist?.products?.some(p => {
+      const wishId = (p.id || p._id)?.toString();
+      return wishId === prodId;
+    });
+
+    if (inWishlist) {
+      navigate("/wishlist");
+      return;
+    }
+
+    try {
+      await dispatch(
+        addToWishlist({
+          userId: userData.userId,
+          productId: prodId,
+        })
+      ).unwrap();
+      toast.success("Added to wishlist!");
+      // Refresh wishlist data so the button text updates
+      dispatch(fetchWishlist(userData.userId));
+    } catch (err) {
+      toast.error("Failed to add to wishlist");
+      console.error("Wishlist error:", err);
+    }
+  };
+
+  // Determine current state using prodId
+  const inCart = cart?.items?.some(item => {
+    const itemId = (item.productId || item.product?.id || item.product?._id)?.toString();
+    return itemId === prodId;
+  });
+  const inWishlist = wishlist?.products?.some(p => {
+    const wishId = (p.id || p._id)?.toString();
+    return wishId === prodId;
+  });
+
+  const cartButtonText = inCart ? "Go to Cart" : "Add to Bag";
+  const wishlistButtonText = inWishlist ? "Go to Wishlist" : "Add to Wishlist";
+
   if (isLoading) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
-        <CircularProgress size={60} />
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        minHeight="100vh"
+        sx={{ backgroundColor: theme.palette.background.default }}
+      >
+        <CircularProgress size={60} sx={{ color: theme.palette.custom.highlight }} />
       </Box>
     );
   }
-  
+
   if (error) {
     return (
-      <Box display="flex" flexDirection="column" alignItems="center" justifyContent="center" minHeight="100vh">
-        <Typography variant="h5" color="error">Error: {error}</Typography>
-        <Button variant="contained" onClick={() => navigate('/products')} sx={{ mt: 2 }}>
+      <Box
+        display="flex"
+        flexDirection="column"
+        alignItems="center"
+        justifyContent="center"
+        minHeight="100vh"
+        sx={{ backgroundColor: theme.palette.background.default }}
+      >
+        <Typography variant="h5" sx={{ color: theme.palette.error.main, mb: 2 }}>
+          Error: {error}
+        </Typography>
+        <ActionButton
+          buttonType="highlight"
+          onClick={() => navigate('/products')}
+          sx={{ mt: 3 }}
+        >
           Return to Products
-        </Button>
+        </ActionButton>
       </Box>
     );
   }
-  
+
   if (!product) return null;
-  
-  // Use fallback logic in case keys differ
+
   const price = product.price || 0;
   const discountActive = product.discount;
   const discountPercent = product.percentage_Discount || 0;
-  const discountedPrice = discountActive ? price - (price * discountPercent / 100) : price;
   const images = product.images || [];
-  const productImage = images.length > 0 ? images[0] : 'https://via.placeholder.com/500';
-  
-  return (
-    <Container maxWidth="lg" sx={{ mt: 8, mb: 8, py: 4 }}>
-      <Grid container spacing={4}>
-        {/* Product Header */}
-        <Grid item xs={12}>
-          <Typography variant="subtitle2" color="text.secondary" gutterBottom>
-            {product.categories}
+
+  const tabContent = [
+    {
+      label: 'Description',
+      content: (
+        <Box>
+          <Typography
+            variant="body1"
+            paragraph
+            sx={{
+              color: theme.palette.neutral.main,
+              lineHeight: 1.6,
+              mb: 3,
+            }}
+          >
+            {product.description ||
+              "This beautiful handcrafted product showcases the finest craftsmanship with attention to detail. Made with premium materials, this item promises both style and durability for years to come."}
           </Typography>
-          <Typography variant="h3" component="h1" fontWeight="bold">
-            {product.name}
-          </Typography>
-        </Grid>
-        
-        {/* Left Column: Image */}
-        <Grid item xs={12} md={6}>
-          <ImageWrapper>
-            <CardMedia
-              component="img"
-              height="500"
-              image={productImage}
-              alt={product.name}
-              sx={{ objectFit: 'cover' }}
-            />
-            {discountActive && (
-              <DiscountChip label={`${discountPercent}% OFF`} />
-            )}
-          </ImageWrapper>
-        </Grid>
-        
-        {/* Right Column: Details */}
-        <Grid item xs={12} md={6}>
+          <ChipGroup
+            title="Materials"
+            items={product.materials_Made || ["Cotton", "Linen", "Natural Dye"]}
+            variant="highlight"
+          />
+          <ChipGroup
+            title="Tags"
+            items={product.tags || ["Handcrafted", "Eco-friendly", "Traditional"]}
+            variant="outline"
+          />
+        </Box>
+      )
+    },
+    {
+      label: 'Shipping',
+      content: (
+        <Box>
           <Stack spacing={3}>
-            {/* Price & Rating */}
             <Box>
-              <Typography variant="h4" color="secondary" fontWeight="bold">
-                {product.currency} {discountedPrice.toFixed(2)}
+              <Typography
+                variant="subtitle1"
+                fontWeight="bold"
+                gutterBottom
+                sx={{ color: theme.palette.custom.highlight, mb: 1 }}
+              >
+                Shipping Information
               </Typography>
-              {discountActive && (
-                <Typography variant="h6" color="text.secondary" sx={{ textDecoration: 'line-through' }}>
-                  {product.currency} {price}
-                </Typography>
-              )}
-              <Stack direction="row" alignItems="center" spacing={1} mt={1}>
-                <Rating value={product.seller?.rating || 0} precision={0.1} readOnly />
-                <Typography variant="body1">
-                  ({product.seller?.rating || 'N/A'})
-                </Typography>
-                {product.seller && (
-                  <Chip 
-                    icon={<VerifiedIcon />} 
-                    label="Verified Seller" 
-                    color="primary" 
-                    size="small" 
-                    variant="outlined" 
-                  />
-                )}
-              </Stack>
-              <Stack direction="row" alignItems="center" spacing={1}>
-                <LocationOnIcon fontSize="small" color="action" />
-                <Typography variant="body1" color="text.secondary">
-                  {product.seller?.location || 'No location info'}
-                </Typography>
-              </Stack>
+              <Typography variant="body1" sx={{ color: theme.palette.neutral.main }}>
+                Estimated delivery time: {product.shipping_Time || product.shipping_time || '3-5 days'}
+              </Typography>
             </Box>
-            
-            {/* Action Buttons */}
-            <Stack direction="row" spacing={2}>
-              <Button variant="contained" size="large" startIcon={<ShoppingCartIcon />} fullWidth>
-                Add to Cart
-              </Button>
-              <IconButton color="secondary">
-                <FavoriteIcon />
-              </IconButton>
-              <IconButton color="secondary">
-                <ShareIcon />
-              </IconButton>
-            </Stack>
-            
-            {/* Shipping and Processing Info */}
-            <Paper variant="outlined" sx={{ p: 3, borderRadius: 2 }}>
-              <Stack spacing={2}>
-                <Stack direction="row" alignItems="center" spacing={1}>
-                  <LocalShippingIcon color="action" />
-                  <Typography variant="body1">
-                    Shipping: {product.shipping_Time || product.shipping_time}
-                  </Typography>
-                </Stack>
-                <Stack direction="row" alignItems="center" spacing={1}>
-                  <AccessTimeIcon color="action" />
-                  <Typography variant="body1">
-                    Processing: {product.processing_Time || product.processing_time}
-                  </Typography>
-                </Stack>
-              </Stack>
-            </Paper>
-            
-            {/* Tabbed Section for Description & More */}
             <Box>
-              <Tabs value={tabValue} onChange={handleTabChange} textColor="primary" indicatorColor="primary">
-                <Tab label="Description" />
-                <Tab label="Additional Info" />
-              </Tabs>
-              <Box mt={2}>
-                {tabValue === 0 && (
-                  <>
-                    <Typography variant="body1" paragraph>
-                      {product.description}
-                    </Typography>
-                    <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
-                      Materials:
-                    </Typography>
-                    <Stack direction="row" spacing={1} flexWrap="wrap">
-                      {product.materials_Made?.map((material, idx) => (
-                        <Chip key={idx} label={material} size="small" variant="outlined" color="primary" />
-                      ))}
-                    </Stack>
-                    <Typography variant="subtitle1" fontWeight="bold" mt={2} gutterBottom>
-                      Tags:
-                    </Typography>
-                    <Stack direction="row" spacing={1} flexWrap="wrap">
-                      {product.tags?.map((tag, idx) => (
-                        <Chip key={idx} label={tag} size="small" variant="outlined" />
-                      ))}
-                    </Stack>
-                  </>
-                )}
-                {tabValue === 1 && (
-                  <Accordion defaultExpanded>
-                    <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                      <Typography variant="h6" fontWeight="medium">
-                        More Details
-                      </Typography>
-                    </AccordionSummary>
-                    <AccordionDetails>
-                      <Typography variant="body1">
-                        {product.description}
-                      </Typography>
-                    </AccordionDetails>
-                  </Accordion>
-                )}
-              </Box>
+              <Typography
+                variant="subtitle1"
+                fontWeight="bold"
+                gutterBottom
+                sx={{ color: theme.palette.custom.highlight, mb: 1 }}
+              >
+                Return Policy
+              </Typography>
+              <Typography variant="body1" sx={{ color: theme.palette.neutral.main }}>
+                30 days return policy. See terms and conditions for more details.
+              </Typography>
             </Box>
           </Stack>
-        </Grid>
-      </Grid>
+        </Box>
+      )
+    },
+    {
+      label: 'Reviews',
+      content: (
+        <Box>
+          <Typography variant="body1" sx={{ color: theme.palette.neutral.main, mb: 3 }}>
+            Customer reviews will be displayed here.
+          </Typography>
+        </Box>
+      )
+    }
+  ];
+
+  return (
+    <Container
+      maxWidth="lg"
+      sx={{
+        py: { xs: 4, md: 6 },
+        my: { xs: 4, md: 20 },
+      }}
+    >
+      {isMobile && (
+        <IconButton
+          onClick={() => navigate(-1)}
+          sx={{ mb: 2, color: theme.palette.custom.highlight }}
+        >
+          <ArrowBackIosIcon />
+        </IconButton>
+      )}
+
+      {!isMobile && (
+        <Box mb={2}>
+          <Typography
+            variant="subtitle2"
+            sx={{
+              cursor: 'pointer',
+              color: theme.palette.custom.highlight,
+              '&:hover': { textDecoration: 'underline' },
+            }}
+            onClick={() => navigate('/products')}
+          >
+            {product.categories || 'Home Decor'} / {product.name || 'Handcrafted Product'}
+          </Typography>
+        </Box>
+      )}
+
+      <Stack
+        direction={isMobile ? 'column' : 'row'}
+        spacing={isMobile ? 3 : 5}
+        sx={{
+          p: 3,
+          borderRadius: 1,
+          overflow: 'hidden',
+        }}
+      >
+        <Box sx={{ flex: 1 }}>
+          <ImageGrid images={images} productName={product.name} />
+        </Box>
+
+        <Box sx={{ flex: 1 }}>
+          <Stack spacing={3}>
+            {/* Added product name as title */}
+            <Typography variant="h5" sx={{ color: theme.palette.custom.highlight, fontWeight: 600 }}>
+              {product.name}
+            </Typography>
+            <PriceDisplay
+              price={price}
+              discountActive={discountActive}
+              discountPercent={discountPercent}
+              currency={product.currency || '₹'}
+            />
+
+            <Stack direction="row" alignItems="center" spacing={1}>
+              <Rating
+                value={product.seller?.rating || 4.2}
+                precision={0.1}
+                readOnly
+                size={isMobile ? 'small' : 'medium'}
+                sx={{ color: theme.palette.custom.highlight }}
+              />
+              <Typography variant="body2" sx={{ color: theme.palette.custom.highlight }}>
+                ({product.seller?.rating || 4.2})
+              </Typography>
+              {product.seller && (
+                <Chip
+                  icon={<VerifiedIcon sx={{ color: theme.palette.custom.highlight }} />}
+                  label="Verified"
+                  size="small"
+                  sx={{
+                    backgroundColor: theme.palette.tints.tint1,
+                    color: theme.palette.custom.highlight,
+                    fontWeight: 600,
+                    borderRadius: 1,
+                  }}
+                />
+              )}
+            </Stack>
+
+            <Divider sx={{ my: 2 }} />
+
+            <Stack direction="row" spacing={1} flexWrap="wrap">
+              <FeatureBadge
+                icon={<LocalShippingIcon fontSize="small" />}
+                text={`Ships in ${product.shipping_Time || '3-5 days'}`}
+              />
+              <FeatureBadge
+                icon={<InventoryIcon fontSize="small" />}
+                text="Easy Returns"
+              />
+              <FeatureBadge
+                icon={<LocationOnIcon fontSize="small" />}
+                text={product.seller?.location || 'India'}
+              />
+            </Stack>
+
+            {/* Buttons for cart and wishlist (50% width each) */}
+            <Stack direction="row" spacing={2}>
+              <Box sx={{ flex: 1 }}>
+                <ActionButton
+                  buttonType="highlight"
+                  size="medium"
+                  startIcon={inCart ? <ShoppingCartIcon /> : <ShoppingCartOutlinedIcon />}
+                  onClick={handleCartClick}
+                  sx={{ width: '100%' }}
+                >
+                  {cartButtonText}
+                </ActionButton>
+              </Box>
+              <Box sx={{ flex: 1 }}>
+                <ActionButton
+                  buttonType="outline"
+                  size="medium"
+                  startIcon={inWishlist ? <FavoriteIcon /> : <FavoriteBorderIcon />}
+                  onClick={handleWishlistClick}
+                  sx={{ width: '100%' }}
+                >
+                  {wishlistButtonText}
+                </ActionButton>
+              </Box>
+            </Stack>
+
+            <Paper
+              variant="outlined"
+              sx={{
+                p: 2,
+                borderRadius: 1,
+                border: `1px dashed ${theme.palette.custom.highlight}40`,
+                backgroundColor: theme.palette.tints.tint1,
+              }}
+            >
+              <Stack direction={isMobile ? "column" : "row"} spacing={2}>
+                <Box sx={{ flex: 1 }}>
+                  <Stack spacing={1}>
+                    <Typography variant="subtitle2" fontWeight="bold" sx={{ color: theme.palette.custom.highlight }}>
+                      DELIVERY OPTIONS
+                    </Typography>
+                    <Stack direction="row" alignItems="center" spacing={1}>
+                      <LocalShippingIcon sx={{ color: theme.palette.custom.highlight }} fontSize="small" />
+                      <Typography variant="body2">
+                        {product.shipping_Time || product.shipping_time || '3-5 days'}
+                      </Typography>
+                    </Stack>
+                  </Stack>
+                </Box>
+                <Box sx={{ flex: 1 }}>
+                  <Stack spacing={1}>
+                    <Typography variant="subtitle2" fontWeight="bold" sx={{ color: theme.palette.custom.highlight }}>
+                      PROCESSING TIME
+                    </Typography>
+                    <Stack direction="row" alignItems="center" spacing={1}>
+                      <AccessTimeIcon sx={{ color: theme.palette.custom.highlight }} fontSize="small" />
+                      <Typography variant="body2">
+                        {product.processing_Time || product.processing_time || '1-2 days'}
+                      </Typography>
+                    </Stack>
+                  </Stack>
+                </Box>
+              </Stack>
+            </Paper>
+
+            <InfoTabs tabs={tabContent} />
+
+            <Box>
+              <Divider sx={{ my: 2 }} />
+              <Stack direction="row" justifyContent="flex-end" spacing={1}>
+                <Typography variant="body2" sx={{ alignSelf: 'center', color: theme.palette.custom.highlight }}>
+                  Share:
+                </Typography>
+                <IconButton size="small" sx={{ color: theme.palette.custom.highlight }}>
+                  <ShareIcon fontSize="small" />
+                </IconButton>
+              </Stack>
+            </Box>
+          </Stack>
+        </Box>
+      </Stack>
     </Container>
   );
 };

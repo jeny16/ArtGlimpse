@@ -26,6 +26,12 @@ import CouponsSection from './CouponsSection'
 import PriceDetails from './PriceDetails'
 import StepperNav from './StepperNav'
 import CommonButton from './Common/CommonButton'
+import ImageGrid from './ImageGrid';
+import PriceDisplay from './PriceDisplay';
+import ActionButton from './ActionButton';
+import FeatureBadge from './FeatureBadge';
+import ChipGroup from './ChipGroup';
+import InfoTabs from './InfoTabs';
 
 export {
     Hero,
@@ -55,5 +61,11 @@ export {
     CouponsSection,
     PriceDetails,
     StepperNav,
-    CommonButton
+    CommonButton,
+    ImageGrid,
+    InfoTabs,
+    ActionButton,
+    PriceDisplay,
+    FeatureBadge,
+    ChipGroup
 }

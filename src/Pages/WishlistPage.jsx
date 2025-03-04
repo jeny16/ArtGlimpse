@@ -4,6 +4,7 @@ import { Box, Typography, Container } from "@mui/material";
 import { ProductGrid, Loader, ErrorState, EmptyState, CommonButton } from "../Components";
 import { fetchWishlist } from "../store/wishlistSlice";
 import { useNavigate } from "react-router-dom";
+import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 
 const WishlistPage = () => {
     const dispatch = useDispatch();
@@ -50,7 +51,8 @@ const WishlistPage = () => {
                 title="Your wishlist is empty"
                 description="Looks like you haven't added any products to your wishlist yet. Start exploring and add your favorite products."
                 buttonText="Explore Products"
-                onClick={() => navigate("/")}
+                redirectTo="/"
+                IconComponent={FavoriteBorderIcon}
             />
         );
 
