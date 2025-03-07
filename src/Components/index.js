@@ -1,16 +1,16 @@
-import Hero from '../Components/Hero'
-import Stats from '../Components/Stats'
-import FeaturedProducts from '../Components/FeaturedProducts'
+import Hero from './Hero'
+import Stats from './Stats'
+import FeaturedProducts from './FeaturedProducts'
 import Story from './Story'
-import Testimonials from '../Components/Testimonials'
-import Features from '../Components/Features'
-import Header from '../Components/Header'
-import Footer from '../Components/Footer'
+import Testimonials from './Testimonials'
+import Features from './Features'
+import Header from './Header'
+import Footer from './Footer'
 import ProductCard from './ProductCard'
 import Login from './Login'
 import Signup from './Signup'
 import FormField from './Common/FormField'
-import AboutUs from '../Components/AboutUs'
+import AboutUs from './AboutUs'
 import FilterSidebar from './FilterSidebar'
 import ProductGrid from './ProductGrid'
 import PaginationComponent from './PaginationComponent'
@@ -32,6 +32,18 @@ import ActionButton from './ActionButton';
 import FeatureBadge from './FeatureBadge';
 import ChipGroup from './ChipGroup';
 import InfoTabs from './InfoTabs';
+import ProfileDetails from './Profile/ProfileDetails';
+import ProfileSidebar from './Profile/ProfileSidebar';
+import Addresses from './Profile/Addresses';
+import Orders from './Profile/Orders';
+import AddAddressForm from './Profile/AddAddressForm'
+import AddressCard from './Profile/AddressCard'
+import SavedCards from './Profile/SavedCards'
+import SavedUpi from './Profile/SavedUpi'
+import DeleteAccount from './Profile/DeleteAccount'
+import Coupons from './Profile/Coupons'
+import Terms from './Profile/Terms'
+import Privacy from './Profile/Privacy'
 
 export {
     Hero,
@@ -67,5 +79,17 @@ export {
     ActionButton,
     PriceDisplay,
     FeatureBadge,
-    ChipGroup
+    ChipGroup,
+    ProfileDetails,
+    ProfileSidebar,
+    Addresses,
+    Orders,
+    AddAddressForm,
+    AddressCard,
+    SavedCards,
+    SavedUpi,
+    Coupons,
+    DeleteAccount,
+    Terms,
+    Privacy
 }

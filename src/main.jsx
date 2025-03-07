@@ -76,7 +76,9 @@ const router = createBrowserRouter([
       {
         path: "/profile",
         element: (
-          <ProfilePage />
+          <AuthLayout authentication>
+            <ProfilePage />
+          </AuthLayout>
         )
       },
       // {
@@ -96,15 +98,6 @@ const router = createBrowserRouter([
     ],
   },
 ]);
-
-// createRoot(document.getElementById('root')).render(
-//   <StrictMode>
-//     <ThemeProvider theme={theme}>
-//       <CssBaseline />
-//       <App />
-//     </ThemeProvider>
-//   </StrictMode>,
-// )
 
 const rootElement = document.getElementById("root");
 

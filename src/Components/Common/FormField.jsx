@@ -13,7 +13,6 @@ function FormField({
     validationRules
 }) {
     const theme = useTheme();
-    // Use the provided name or fallback to a normalized label (e.g. "Full Name" becomes "fullname")
     const fieldName = name || label.toLowerCase().replace(/\s/g, '');
 
     return (

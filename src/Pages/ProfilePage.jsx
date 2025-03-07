@@ -1,156 +1,110 @@
-import React, { useState } from 'react';
-import {
-  Box,
-  Typography,
-  Container,
-  ThemeProvider,
-  CssBaseline,
-  Paper
-} from '@mui/material';
-import ProfileSidebar from '../Components/ProfileSidebar';
-import ProfileDetails from '../Components/ProfileDetails';
-import Addresses from '../Components/Addresses';
-import Orders from '../Components/Orders';
-import theme from '../Styles/theme';
+import React, { useState, useEffect } from 'react';
+import { Box, Typography, Container, Paper } from '@mui/material';
+import { ProfileSidebar, ProfileDetails, Addresses, Orders, Coupons, SavedCards, SavedUpi, DeleteAccount, Terms, Privacy } from '../Components/index';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchProfile } from '../store/profileSlice';
 
 const ProfilePage = () => {
   const [activeSection, setActiveSection] = useState('profile');
+  const dispatch = useDispatch();
+  const { profile, loading, error } = useSelector(state => state.profile);
+  const auth = useSelector(state => state.auth);
+  const userId = auth.userData?.userId || auth.userData?._id;
 
-  const userData = {
-    fullName: 'Soham Sareriya',
-    mobileNumber: '8128781512',
-    email: 'sohamsk2425@gmail.com',
-    gender: 'MALE',
-    dateOfBirth: '',
-    location: '',
-    alternateMobile: '',
-    hintName: '',
-  };
-
-  const addressData = [
-    {
-      id: 1,
-      name: 'Soham Sareriya',
-      addressLine1: 'Indus University,Rancharda,gruh garden road',
-      addressLine2: 'Palodia',
-      city: 'Ahmedabad',
-      state: 'Gujarat',
-      pincode: '380058',
-      mobile: '8128781512',
-      addressType: 'HOME',
-      isDefault: true
-    },
-    {
-      id: 2,
-      name: 'Soham Sareriya',
-      addressLine1: 'B2-JEEVANDEEP SOCIETY,NR.PALLA...',
-      addressLine2: 'Thaltej',
-      city: 'Ahmedabad',
-      state: '',
-      pincode: '380054',
-      mobile: '',
-      addressType: 'HOME',
-      isDefault: false
-    },
-    {
-      id: 3,
-      name: 'Soham Sareriya',
-      addressLine1: 'Indus University,Gruh Gardens ...',
-      addressLine2: 'Rancharada',
-      city: 'Ahmedabad',
-      state: '',
-      pincode: '382115',
-      mobile: '',
-      addressType: 'HOME',
-      isDefault: false
+  useEffect(() => {
+    if (userId) {
+      dispatch(fetchProfile({ userId }));
     }
-  ];
+  }, [dispatch, userId]);
 
   const renderContent = () => {
     switch (activeSection) {
       case 'profile':
-        return <ProfileDetails userData={userData} />;
+        return <ProfileDetails userData={profile} />;
       case 'addresses':
-        return <Addresses addresses={addressData} />;
+        return <Addresses />;
       case 'orders':
-        return <Orders userData={userData} />;
+        return <Orders orders={profile?.orders || []} />;
+      case 'coupons':
+        return <Coupons />;
+      case 'cards':
+        return <SavedCards />;
+      case 'upi':
+        return <SavedUpi />;
+      case 'delete':
+        return <DeleteAccount />;
+      case 'terms':
+        return <Terms />;
+      case 'privacy':
+        return <Privacy />;
       default:
-        return <ProfileDetails userData={userData} />;
+        return <ProfileDetails userData={profile} />;
     }
   };
 
+  if (!userId) {
+    return (
+      <Container maxWidth="lg" sx={{ py: 2 }}>
+        <Typography variant="h5" align="center">
+          Please login to view your profile.
+        </Typography>
+      </Container>
+    );
+  }
+
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <Container maxWidth="lg" sx={{ py: 5, my: 20 }}>
-        <Paper
-          elevation={0}
+    <Container maxWidth="lg" sx={{ py: 5, my: 20 }}>
+      <Paper
+        elevation={0}
+        sx={{
+          p: 4,
+          mb: 4,
+          background: 'linear-gradient(135deg, #fdf7ed 0%, #fefaf4 100%)',
+          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.05)',
+          borderLeft: '4px solid',
+          borderColor: 'custom.highlight',
+          transition: 'all 0.3s ease'
+        }}
+      >
+        <Typography
+          variant="h5"
+          component="h1"
+          fontWeight="bold"
           sx={{
-            p: 4,
-            mb: 4,
-            background: 'linear-gradient(135deg, #fdf7ed 0%, #fefaf4 100%)',
-            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.05)',
-            borderLeft: '4px solid',
-            borderColor: 'custom.highlight',
-            transition: 'all 0.3s ease'
+            color: 'custom.highlight',
+            mb: 1,
+            fontFamily: 'Raleway, sans-serif',
           }}
         >
-          <Typography
-            variant="h5"
-            component="h1"
-            fontWeight="bold"
-            sx={{
-              color: 'custom.highlight',
-              mb: 1,
-              fontFamily: 'Raleway, sans-serif',
-              position: 'relative',
-              '&:after': {
-                content: '""',
-                position: 'absolute',
-                bottom: -8,
-                left: 0,
-                width: 40,
-                height: 3,
-                backgroundColor: 'custom.highlight',
-                borderRadius: 4
-              }
-            }}
-          >
-            My Account
-          </Typography>
-          <Typography
-            variant="body1"
-            sx={{
-              color: 'text.secondary',
-              fontWeight: 500,
-              mt: 2
-            }}
-          >
-            Welcome back, Soham
-          </Typography>
-        </Paper>
+          My Account
+        </Typography>
+        <Typography
+          variant="body1"
+          sx={{
+            color: 'text.secondary',
+            fontWeight: 500,
+            mt: 2
+          }}
+        >
+          {profile?.username ? `Welcome back, ${profile.username}` : 'Welcome back'}
+        </Typography>
+      </Paper>
 
-        <Box sx={{
-          display: 'flex',
-          flexDirection: { xs: 'column', md: 'row' },
-          gap: 4
-        }}>
-          <Box sx={{
-            width: { xs: '100%', md: '280px' },
-            flexShrink: 0
-          }}>
+      {loading ? (
+        <Typography>Loading...</Typography>
+      ) : error ? (
+        null
+      ) : (
+        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 4 }}>
+          <Box sx={{ width: { xs: '100%', md: '280px' }, flexShrink: 0 }}>
             <ProfileSidebar activeSection={activeSection} setActiveSection={setActiveSection} />
           </Box>
-
-          <Box sx={{
-            flexGrow: 1,
-            width: { xs: '100%', md: 'calc(100% - 320px)' }
-          }}>
+          <Box sx={{ flexGrow: 1, width: { xs: '100%', md: 'calc(100% - 320px)' } }}>
             {renderContent()}
           </Box>
         </Box>
-      </Container>
-    </ThemeProvider>
+      )}
+    </Container>
   );
 };
 

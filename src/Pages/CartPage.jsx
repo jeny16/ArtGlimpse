@@ -35,7 +35,8 @@ const CartPage = () => {
     };
 
     const errorMessage =
-        error && typeof error === 'object'
+        error
+            // && typeof error === 'object'
             ? error.message || JSON.stringify(error)
             : error;
 

@@ -1,13 +1,11 @@
-import axios from 'axios';
-
+import axios from './api'; // use the configured axios instance
 const API_URL = 'http://localhost:8081/cart';
 
 const cartService = {
-    // Get the cart for a given user
     getCart: async (userId) => {
         try {
             const response = await axios.get(`${API_URL}/${userId}`);
-            console.log("response from getCart", response.data);
+            console.log("Cart response:", response.data);
             return response.data;
         } catch (error) {
             console.error("Error fetching cart", error);
@@ -15,11 +13,10 @@ const cartService = {
         }
     },
 
-    // Add a product to the cart
     addProductToCart: async (cartData) => {
         try {
             const response = await axios.post(API_URL, cartData);
-            console.log("response from addProductToCart", response.data);
+            console.log("Add product to cart response:", response.data);
             return response.data;
         } catch (error) {
             console.error("Error adding product to cart", error);
@@ -27,11 +24,10 @@ const cartService = {
         }
     },
 
-    // Update the quantity of a product in the cart
     updateProductQuantity: async (userId, productId, quantity) => {
         try {
             const response = await axios.put(`${API_URL}/${userId}/${productId}`, { quantity });
-            console.log("response from updateProductQuantity", response.data);
+            console.log("Update product quantity response:", response.data);
             return response.data;
         } catch (error) {
             console.error("Error updating product quantity", error);
@@ -39,11 +35,10 @@ const cartService = {
         }
     },
 
-    // Remove a product from the cart
     removeProductFromCart: async (userId, productId) => {
         try {
             const response = await axios.delete(`${API_URL}/${userId}/${productId}`);
-            console.log("response from removeProductFromCart", response.data);
+            console.log("Remove product from cart response:", response.data);
             return response.data;
         } catch (error) {
             console.error("Error removing product from cart", error);
@@ -53,4 +48,3 @@ const cartService = {
 };
 
 export default cartService;
-

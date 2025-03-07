@@ -35,7 +35,6 @@ const ProfileSidebar = ({ activeSection, setActiveSection }) => {
             case 'coupons':
                 return <LocalOfferIcon />;
             case 'credit':
-            case 'myncash':
                 return <AccountBalanceWalletIcon />;
             case 'profile':
                 return <PersonIcon />;
@@ -46,8 +45,6 @@ const ProfileSidebar = ({ activeSection, setActiveSection }) => {
                 return <PaymentIcon />;
             case 'addresses':
                 return <HomeIcon />;
-            case 'insider':
-                return <StarsIcon />;
             case 'delete':
                 return <DeleteIcon />;
             case 'terms':
