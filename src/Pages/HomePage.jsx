@@ -3,7 +3,7 @@ import {
     Box
 } from '@mui/material';
 import { Hero, FeaturedProducts, Story, Stats, Testimonials, Features } from '../Components/index';
-
+import Chatbot from '../Components/ChatBot/ChatBot';
 const HomePage = () => {
     return (
         <Box>
@@ -13,6 +13,7 @@ const HomePage = () => {
             <Stats />
             <Testimonials />
             <Features />
+            <Chatbot />
         </Box>
     );
 };
