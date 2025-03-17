@@ -3,6 +3,7 @@ import { Box, Typography, Container, Paper } from '@mui/material';
 import { ProfileSidebar, ProfileDetails, Addresses, Orders, Coupons, SavedCards, SavedUpi, DeleteAccount, Terms, Privacy } from '../Components/index';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchProfile } from '../store/profileSlice';
+import OrderHistory from '../Components/Profile/OrderHistory';
 
 const ProfilePage = () => {
   const [activeSection, setActiveSection] = useState('profile');
@@ -10,7 +11,7 @@ const ProfilePage = () => {
   const { profile, loading, error } = useSelector(state => state.profile);
   const auth = useSelector(state => state.auth);
   const userId = auth.userData?.userId || auth.userData?._id;
-
+  console.log("profile page :- ", profile);
   useEffect(() => {
     if (userId) {
       dispatch(fetchProfile({ userId }));
@@ -24,7 +25,8 @@ const ProfilePage = () => {
       case 'addresses':
         return <Addresses />;
       case 'orders':
-        return <Orders orders={profile?.orders || []} />;
+        // return <Orders orders={profile?.orders || []} />;
+        return <OrderHistory />
       case 'coupons':
         return <Coupons />;
       case 'cards':
