@@ -92,11 +92,11 @@ const ProfileDetailsForm = ({ register, errors, handleSubmit, onSubmit, onCancel
             <Grid item xs={12}>
                 <FormField
                     label="Full Name"
-                    name="fullName"
+                    name="username"
                     placeholder="Enter full name"
                     register={register}
-                    error={errors.fullName}
-                    helperText={errors.fullName?.message}
+                    error={errors.username}
+                    helperText={errors.username?.message}
                     rules={{ required: 'Full name is required' }}
                 />
             </Grid>
@@ -237,7 +237,7 @@ const ProfileDetails = ({ userData }) => {
         formState: { errors }
     } = useForm({
         defaultValues: {
-            fullName: userData?.username || '',
+            username: userData?.username || '',
             mobile: userData?.mobile || '',
             email: userData?.email || '',
             gender: userData?.gender || '',
@@ -250,7 +250,7 @@ const ProfileDetails = ({ userData }) => {
     // Reset form when userData changes
     useEffect(() => {
         reset({
-            fullName: userData?.username || '',
+            username: userData?.username || '',
             mobile: userData?.mobile || '',
             email: userData?.email || '',
             gender: userData?.gender || '',

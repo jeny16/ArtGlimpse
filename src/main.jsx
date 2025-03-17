@@ -18,6 +18,7 @@ import WishlistPage from "./Pages/WishlistPage.jsx";
 import CartPage from "./Pages/CartPage.jsx";
 import ProductDetail from "./Pages/ProductDetail.jsx";
 import ProfilePage from "./Pages/ProfilePage.jsx"
+import OrderConfirmation from "./Pages/OrderConfirmation.jsx"
 import { AuthLayout } from "./Components/index.js";
 
 const router = createBrowserRouter([
@@ -93,6 +94,12 @@ const router = createBrowserRouter([
           <AuthLayout authentication>
             <CartPage />
           </AuthLayout>
+        )
+      },
+      {
+        path: "/order-confirmation",
+        element: (
+          <OrderConfirmation />
         )
       }
     ],
