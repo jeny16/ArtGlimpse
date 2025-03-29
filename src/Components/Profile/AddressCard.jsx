@@ -1,59 +1,52 @@
 import React from 'react';
-import { Box, Typography, Paper, Button, Chip, Divider } from '@mui/material';
+import {
+    Box,
+    Typography,
+    Paper,
+    Button,
+    Chip,
+    Divider,
+    Radio,
+} from '@mui/material';
 import HomeIcon from '@mui/icons-material/Home';
 import BusinessIcon from '@mui/icons-material/Business';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
-import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
 
-const AddressCard = ({ address, onEdit, onRemove, onSetDefault }) => {
-    // Choose icon based on addressType.
+const AddressCard = ({
+    address,
+    selected,
+    onSelect,
+    onRemove,
+    onEdit,
+    onSetDefault,
+    isCheckout = false,
+}) => {
+    // Determine the icon based on addressType.
     const icon =
-        address.addressType && address.addressType.toLowerCase() === 'work'
+        address.addressType?.toLowerCase() === 'work'
             ? <BusinessIcon />
             : <HomeIcon />;
 
-    return (
-        <Paper
-            elevation={0}
-            sx={{
-                mb: 3,
-                p: 3,
-                borderRadius: 2,
-                border: '1px solid',
-                borderColor: address.default ? 'custom.highlight' : 'shades.light',
-                position: 'relative',
-                transition: 'all 0.3s ease',
-                '&:hover': {
-                    boxShadow: '0 4px 16px rgba(0, 0, 0, 0.08)',
-                    transform: 'translateY(-2px)',
-                },
-                backgroundColor: address.default ? 'rgba(193, 121, 18, 0.03)' : 'white',
-            }}
-        >
-            {/* Address Type Chip */}
-            {address.addressType && (
-                <Chip
-                    label={address.addressType.toUpperCase()}
-                    size="small"
-                    icon={<LocationOnIcon sx={{ fontSize: '16px !important' }} />}
-                    sx={{
-                        position: 'absolute',
-                        top: 16,
-                        right: 16,
-                        bgcolor: 'transparent',
-                        border: '1px solid #d4d4d4',
-                        borderRadius: 4,
-                        color: 'text.secondary',
-                        height: 28,
-                        fontSize: '0.75rem',
-                        fontWeight: 'medium',
-                    }}
-                />
-            )}
+    // In selectable mode (when onSelect is provided), only show action buttons if this card is selected.
+    // In non-selectable mode, always show them.
+    const showButtons = onSelect ? selected : true;
+    // For profile mode, show "Set as default" if onSetDefault is provided, the address isn't default, and the card is selected.
+    const showSetDefault = !isCheckout && onSetDefault && !address.isDefault && showButtons;
 
-            {/* Top row: Name and Icon */}
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+    // Handler for card click
+    const handleCardClick = () => {
+        if (onSelect) {
+            onSelect(address.id);
+        }
+    };
+
+    // Content for the card (icon + name, details, and buttons)
+    const content = (
+        <Box>
+            {/* Top row: Icon + Name + AddressType Chip */}
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 <Box
                     sx={{
                         mr: 2,
@@ -72,10 +65,27 @@ const AddressCard = ({ address, onEdit, onRemove, onSetDefault }) => {
                 <Typography variant="subtitle1" fontWeight="bold" sx={{ lineHeight: 1.2 }}>
                     {address.name || 'Name Not Provided'}
                 </Typography>
+                {address.addressType && (
+                    <Chip
+                        label={address.addressType.toUpperCase()}
+                        size="small"
+                        icon={<LocationOnIcon sx={{ fontSize: '16px !important' }} />}
+                        sx={{
+                            ml: 2,
+                            bgcolor: 'transparent',
+                            border: '1px solid #d4d4d4',
+                            borderRadius: 4,
+                            color: 'text.secondary',
+                            height: 28,
+                            fontSize: '0.75rem',
+                            fontWeight: 'medium',
+                        }}
+                    />
+                )}
             </Box>
 
-            {/* Address details */}
-            <Box sx={{ ml: 7, mb: 3 }}>
+            {/* Address Details */}
+            <Box sx={{ mt: 2 }}>
                 {address.street && (
                     <Typography variant="body2" sx={{ mb: 0.5 }}>
                         {address.street}
@@ -103,69 +113,132 @@ const AddressCard = ({ address, onEdit, onRemove, onSetDefault }) => {
                 )}
             </Box>
 
-            <Divider sx={{ my: 2 }} />
+            {/* Action buttons */}
+            {showButtons && (
+                <>
+                    <Divider sx={{ my: 2 }} />
+                    <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
+                        {showSetDefault && (
+                            <Button
+                                variant="outlined"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    onSetDefault(address.id);
+                                }}
+                                sx={{
+                                    textTransform: 'uppercase',
+                                    fontWeight: 'medium',
+                                    borderRadius: 2,
+                                    fontSize: '0.7rem',
+                                    color: 'custom.highlight',
+                                    borderColor: 'custom.highlight',
+                                    '&:hover': {
+                                        backgroundColor: 'rgba(193, 121, 18, 0.05)',
+                                        borderColor: 'custom.highlight',
+                                    },
+                                }}
+                            >
+                                Set as default
+                            </Button>
+                        )}
+                        <Button
+                            variant="outlined"
+                            startIcon={<EditIcon />}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onEdit(address.id);
+                            }}
+                            sx={{
+                                textTransform: 'uppercase',
+                                fontWeight: 'medium',
+                                borderRadius: 2,
+                                fontSize: '0.7rem',
+                                color: 'info.main',
+                                borderColor: 'info.light',
+                                '&:hover': {
+                                    backgroundColor: 'info.lightest',
+                                    borderColor: 'info.main',
+                                },
+                            }}
+                        >
+                            Edit
+                        </Button>
+                        <Button
+                            variant="outlined"
+                            startIcon={<DeleteIcon />}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onRemove(address.id);
+                            }}
+                            sx={{
+                                color: 'error.main',
+                                borderColor: 'error.light',
+                                textTransform: 'uppercase',
+                                fontWeight: 'medium',
+                                borderRadius: 2,
+                                fontSize: '0.7rem',
+                                '&:hover': {
+                                    backgroundColor: 'error.lightest',
+                                    borderColor: 'error.main',
+                                },
+                            }}
+                        >
+                            Remove
+                        </Button>
+                    </Box>
+                </>
+            )}
+        </Box>
+    );
 
-            {/* Action buttons aligned to right */}
-            <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
-                {!address.default && (
-                    <Button
-                        variant="outlined"
-                        onClick={onSetDefault}
-                        sx={{
-                            textTransform: 'uppercase',
-                            fontWeight: 'medium',
-                            borderRadius: 2,
-                            fontSize: '0.7rem',
-                            color: 'custom.highlight',
-                            borderColor: 'custom.highlight',
-                            '&:hover': {
-                                backgroundColor: 'rgba(193, 121, 18, 0.05)',
-                                borderColor: 'custom.highlight',
-                            },
-                        }}
-                    >
-                        Set as default
-                    </Button>
-                )}
-                <Button
-                    variant="outlined"
-                    startIcon={<EditIcon />}
-                    onClick={onEdit}
-                    sx={{
-                        color: 'custom.highlight',
-                        borderColor: 'custom.highlight',
-                        textTransform: 'uppercase',
-                        fontWeight: 'medium',
-                        borderRadius: 2,
-                        fontSize: '0.7rem',
-                        '&:hover': {
-                            backgroundColor: 'rgba(193, 121, 18, 0.05)',
-                            borderColor: 'custom.highlight',
-                        },
-                    }}
-                >
-                    Edit
-                </Button>
-                <Button
-                    variant="outlined"
-                    startIcon={<DeleteIcon />}
-                    onClick={onRemove}
-                    sx={{
-                        color: 'error.main',
-                        borderColor: 'error.light',
-                        textTransform: 'uppercase',
-                        fontWeight: 'medium',
-                        borderRadius: 2,
-                        fontSize: '0.7rem',
-                        '&:hover': {
-                            backgroundColor: 'error.lightest',
-                            borderColor: 'error.main',
-                        },
-                    }}
-                >
-                    Remove
-                </Button>
-            </Box>
+    // If in checkout mode, render the radio button in its own grid column.
+    if (isCheckout && onSelect) {
+        return (
+            <Paper
+                elevation={0}
+                sx={{
+                    mb: 2,
+                    p: 2,
+                    borderRadius: 2,
+                    border: '1px solid',
+                    borderColor: selected ? 'custom.highlight' : 'shades.light',
+                    transition: 'all 0.3s ease',
+                    backgroundColor: selected ? 'rgba(193, 121, 18, 0.03)' : 'white',
+                    cursor: 'pointer',
+                }}
+                onClick={handleCardClick}
+            >
+                <Box sx={{ display: 'grid', gridTemplateColumns: 'auto 1fr', alignItems: 'start', gap: 2 }}>
+                    <Radio
+                        checked={selected}
+                        onChange={() => onSelect(address.id)}
+                        value={address.id}
+                        name="address-selection"
+                        color="secondary"
+                    />
+                    {content}
+                </Box>
+            </Paper>
+        );
+    }
+
+    // Otherwise, render normally.
+    return (
+        <Paper
+            elevation={0}
+            sx={{
+                mb: 2,
+                p: 2,
+                borderRadius: 2,
+                border: '1px solid',
+                borderColor: selected ? 'custom.highlight' : 'shades.light',
+                transition: 'all 0.3s ease',
+                backgroundColor: selected ? 'rgba(193, 121, 18, 0.03)' : 'white',
+                cursor: onSelect ? 'pointer' : 'default',
+            }}
+            onClick={handleCardClick}
+        >
+            {content}
         </Paper>
     );
 };

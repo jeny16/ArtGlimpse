@@ -19,10 +19,7 @@ import Loader from './Common/Loader'
 import ErrorState from './Common/ErrorState'
 import EmptyState from './Common/EmptyState'
 import AuthLayout from './Common/AuthLayout'
-import AddressSection from './AddressSection'
 import CartItem from './CartItem'
-import DonationSection from './DonationSection'
-import CouponsSection from './CouponsSection'
 import PriceDetails from './PriceDetails'
 import StepperNav from './StepperNav'
 import CommonButton from './Common/CommonButton'
@@ -36,6 +33,7 @@ import ProfileDetails from './Profile/ProfileDetails';
 import ProfileSidebar from './Profile/ProfileSidebar';
 import Addresses from './Profile/Addresses';
 import Orders from './Profile/Orders';
+import OrderHistory from './Profile/OrderHistory';
 import AddAddressForm from './Profile/AddAddressForm'
 import AddressCard from './Profile/AddressCard'
 import SavedCards from './Profile/SavedCards'
@@ -44,6 +42,9 @@ import DeleteAccount from './Profile/DeleteAccount'
 import Coupons from './Profile/Coupons'
 import Terms from './Profile/Terms'
 import Privacy from './Profile/Privacy'
+import PaymentStatic from './PaymentStatic'
+import CartReview from './CartReview';
+import AddressSelection from './AddressSelection';
 
 export {
     Hero,
@@ -67,10 +68,7 @@ export {
     ErrorState,
     EmptyState,
     AuthLayout,
-    AddressSection,
     CartItem,
-    DonationSection,
-    CouponsSection,
     PriceDetails,
     StepperNav,
     CommonButton,
@@ -91,5 +89,9 @@ export {
     Coupons,
     DeleteAccount,
     Terms,
-    Privacy
+    Privacy,
+    PaymentStatic,
+    CartReview,
+    AddressSelection,
+    OrderHistory
 }

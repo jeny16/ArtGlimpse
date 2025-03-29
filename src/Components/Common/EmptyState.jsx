@@ -10,8 +10,9 @@ const bounceAnimation = keyframes`
   60% { transform: translateY(-5px); }
 `;
 
-const EmptyState = ({ title, description, buttonText, redirectTo, IconComponent }) => {
+const EmptyState = ({ title, description, buttonText, redirectTo, IconComponent, width }) => {
     const navigate = useNavigate();
+    const minHeight = width ? '50vh' : '100vh';
 
     const handleClick = () => {
         navigate(redirectTo);
@@ -27,7 +28,7 @@ const EmptyState = ({ title, description, buttonText, redirectTo, IconComponent 
                 alignItems: 'center',
                 justifyContent: 'center',
                 gap: 2,
-                minHeight: '100vh',
+                minHeight,
             }}
         >
             {IconComponent && (

@@ -1,15 +1,23 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Grid, Button, Box, Typography } from '@mui/material';
-import StepperNav from '../Components/StepperNav';
-import CartReview from '../Components/CartReview';
-import AddressSelection from '../Components/AddressSelection';
-import PaymentStatic from '../Components/PaymentStatic';
-import { Loader, ErrorState, EmptyState } from '../Components';
+import { Container, Grid, Box, Typography } from '@mui/material';
+import {
+    PriceDetails,
+    PaymentStatic,
+    AddressSelection,
+    CartReview,
+    StepperNav,
+    Loader,
+    ErrorState,
+    EmptyState,
+    CommonButton
+} from '../Components/index';
 import ShoppingCartOutlinedIcon from '@mui/icons-material/ShoppingCartOutlined';
 import { useDispatch, useSelector } from 'react-redux';
 import { createOrder } from '../store/orderSlice';
 import { clearCart, fetchCart } from '../store/cartSlice';
 import { useNavigate } from 'react-router-dom';
+import { fetchProfile } from '../store/profileSlice';
+import { toast } from 'react-toastify';
 
 const CartPage = () => {
     const dispatch = useDispatch();
@@ -19,7 +27,9 @@ const CartPage = () => {
     const { userData } = useSelector((state) => state.auth);
     const userId = userData?.userId || userData?._id;
 
+    // Checkout steps
     const [activeStep, setActiveStep] = useState(0);
+    // Lifted state for selected address (passed into AddressSelection)
     const [selectedAddress, setSelectedAddress] = useState(null);
     const steps = ['Bag', 'Address', 'Payment'];
 
@@ -29,29 +39,33 @@ const CartPage = () => {
         }
     }, [dispatch, userId]);
 
+    useEffect(() => {
+        if (userId && !profile) {
+            dispatch(fetchProfile({ userId }));
+        }
+    }, [dispatch, userId, profile]);
+
     const handleNext = async () => {
         if (activeStep === 0) {
             setActiveStep(1);
         } else if (activeStep === 1) {
-            // Ensure an address is selected before moving forward
             if (!selectedAddress) {
-                alert('Please select an address');
+                toast.error('Please select an address');
                 return;
             }
             setActiveStep(2);
         } else if (activeStep === 2) {
-            // Build order request data
             const orderData = {
                 userId: profile.id,
                 cart: cart,
-                shippingAddress: selectedAddress
+                shippingAddress: selectedAddress,
             };
             try {
                 await dispatch(createOrder(orderData)).unwrap();
                 dispatch(clearCart());
                 navigate('/order-confirmation');
             } catch (err) {
-                alert('Order creation failed: ' + err);
+                toast.error('Order creation failed: ' + err);
             }
         }
     };
@@ -59,6 +73,9 @@ const CartPage = () => {
     const handleBack = () => {
         setActiveStep((prev) => prev - 1);
     };
+
+    const nextLabel =
+        activeStep === 0 ? 'Place Order' : activeStep === 1 ? 'Continue' : 'Confirm Payment';
 
     if (!userId) {
         return (
@@ -76,10 +93,7 @@ const CartPage = () => {
 
     if (status === 'failed') {
         return (
-            <ErrorState
-                onRetry={() => dispatch(fetchCart(userId))}
-                description={error}
-            />
+            <ErrorState onRetry={() => dispatch(fetchCart(userId))} description={error} />
         );
     }
 
@@ -99,7 +113,8 @@ const CartPage = () => {
         <Container maxWidth="lg" sx={{ py: 4, mt: 20 }}>
             <StepperNav activeStep={activeStep} />
             <Grid container spacing={3}>
-                <Grid item xs={12}>
+                {/* Main Content */}
+                <Grid item xs={12} md={8}>
                     {activeStep === 0 && <CartReview />}
                     {activeStep === 1 && (
                         <AddressSelection
@@ -109,17 +124,41 @@ const CartPage = () => {
                     )}
                     {activeStep === 2 && <PaymentStatic />}
                 </Grid>
+
+                {/* Right Column */}
+                <Grid item xs={12} md={4}>
+                    <PriceDetails />
+                    <Box sx={{ mt: 3, gap: 2, display: 'flex', justifyContent: 'space-between' }}>
+                        {activeStep > 0 && (
+                            <CommonButton
+                                btnText="Back"
+                                onClick={handleBack}
+                                sx={{
+                                    bgcolor: 'transparent',
+                                    color: (theme) => theme.palette.custom.highlight,
+                                    border: (theme) => `1px solid ${theme.palette.custom.highlight}`,
+                                    '&:hover': {
+                                        bgcolor: (theme) => theme.palette.custom.accent,
+                                        color: '#fff',
+                                    },
+                                }}
+                            />
+                        )}
+                        <CommonButton
+                            btnText={nextLabel}
+                            onClick={handleNext}
+                            fullWidth={true}
+                            sx={{
+                                bgcolor: (theme) => theme.palette.custom.highlight,
+                                color: '#fff',
+                                '&:hover': {
+                                    bgcolor: (theme) => theme.palette.custom.accent,
+                                },
+                            }}
+                        />
+                    </Box>
+                </Grid>
             </Grid>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 3 }}>
-                {activeStep > 0 && (
-                    <Button variant="outlined" onClick={handleBack}>
-                        Back
-                    </Button>
-                )}
-                <Button variant="contained" onClick={handleNext}>
-                    {activeStep === steps.length - 1 ? 'Confirm Payment' : 'Next'}
-                </Button>
-            </Box>
         </Container>
     );
 };

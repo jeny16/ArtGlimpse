@@ -27,17 +27,18 @@ const AddAddressForm = ({ onSave, onCancel, initialData }) => {
         formState: { errors },
     } = useForm({
         defaultValues: initialData
-            ? { ...initialData, isDefault: initialData.default }
-            : { addressType: 'HOME' },
+            ? { ...initialData, isDefault: initialData.isDefault }
+            : { addressType: 'HOME', isDefault: false },
     });
 
     useEffect(() => {
         if (initialData) {
-            reset({ ...initialData, isDefault: initialData.default });
+            reset({ ...initialData, isDefault: initialData.isDefault });
         }
     }, [initialData, reset]);
 
     const onSubmit = (data) => {
+        // Ensure isDefault is a boolean
         data.isDefault = !!data.isDefault;
         onSave(data);
     };
@@ -281,7 +282,7 @@ const AddAddressForm = ({ onSave, onCancel, initialData }) => {
                         control={
                             <Checkbox
                                 {...register('isDefault')}
-                                defaultChecked={initialData ? initialData.default : false}
+                                defaultChecked={initialData ? initialData.isDefault : false}
                                 sx={{
                                     color: 'shades.medium',
                                     '&.Mui-checked': { color: 'custom.highlight' },

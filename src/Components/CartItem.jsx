@@ -1,144 +1,216 @@
 import React from 'react';
+import { Box, Grid, Typography, Button, IconButton } from '@mui/material';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
+import { useTheme } from '@mui/material/styles';
 import { useDispatch, useSelector } from 'react-redux';
 import { removeFromCart, updateCartQuantity } from '../store/cartSlice';
-import {
-  Card,
-  CardMedia,
-  CardContent,
-  Typography,
-  IconButton,
-  Box,
-  Button,
-  useTheme,
-} from '@mui/material';
-import DeleteIcon from '@mui/icons-material/Delete';
-import RemoveIcon from '@mui/icons-material/Remove';
-import AddIcon from '@mui/icons-material/Add';
 import { toast } from 'react-toastify';
 
 const CartItem = ({ item }) => {
-  const dispatch = useDispatch();
   const theme = useTheme();
+  const dispatch = useDispatch();
+
+  // Retrieve user data to get the uid (userId)
   const { userData } = useSelector((state) => state.auth);
   const uid = userData?.userId || userData?._id;
 
+  // Retrieve product details
   const { products } = useSelector((state) => state.product);
   const productDetail =
     products.find((prod) => prod._id === item.productId) || item.productData || {};
 
-  const handleRemove = () => {
+  // Merge details: prioritize item values, then productDetail
+  const name = item.name || productDetail.name || 'Product Name';
+  const price = Number(item.price || productDetail.price || 0);
+  const originalPrice = Number(item.originalPrice || productDetail.originalPrice || 0);
+  const discountPercent = Number(item.discountPercent || productDetail.percentage_Discount || 0);
+  const images = item.images || productDetail.images || [];
+  const discountedPrice = price - (price * discountPercent) / 100;
+  const { quantity, size } = item;
+
+  const handleQuantityChange = (newQty) => {
+    if (newQty >= 1) {
+      dispatch(updateCartQuantity({ userId: uid, productId: item.productId, quantity: newQty }));
+    }
+  };
+
+  const handleRemoveItem = () => {
     dispatch(removeFromCart({ userId: uid, productId: item.productId }));
     toast.success("Product removed from cart");
   };
 
-  const handleDecrease = () => {
-    if (item.quantity > 1) {
-      dispatch(
-        updateCartQuantity({
-          userId: uid,
-          productId: item.productId,
-          quantity: item.quantity - 1,
-        })
-      );
-    }
-  };
-
-  const handleIncrease = () => {
-    dispatch(
-      updateCartQuantity({
-        userId: uid,
-        productId: item.productId,
-        quantity: item.quantity + 1,
-      })
-    );
-  };
-
-  const name = item.name || productDetail.name || "Product Name";
-  const price = Number(item.price || productDetail.price || 0);
-  const discountPercent = Number(
-    item.discountPercent || productDetail.percentage_Discount || 0
-  );
-  const images = item.images || productDetail.images || [];
-  const discountedPrice = price - (price * discountPercent) / 100;
-
   return (
-    <Card
+    <Box
       sx={{
-        display: 'flex',
-        flexDirection: { xs: 'column', sm: 'row' },
-        mb: 2,
-        borderRadius: 3,
-        boxShadow: 3,
-        overflow: 'hidden',
+        py: 2,
+        borderBottom: `1px solid ${theme.palette.shades.light}`,
       }}
     >
-      <CardMedia
-        component="img"
-        image={images[0] || 'https://via.placeholder.com/150'}
-        alt={name}
-        sx={{
-          width: { xs: '100%', sm: 150 },
-          height: { xs: 200, sm: 'auto' },
-          objectFit: 'cover',
-        }}
-      />
-      <CardContent sx={{ flex: 1, p: 3 }}>
-        <Typography
-          variant="h6"
-          fontWeight="bold"
-          color="text.primary"
-          gutterBottom
-        >
-          {name}
-        </Typography>
-        {discountPercent > 0 ? (
-          <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-            <Typography
-              variant="body1"
-              sx={{ textDecoration: 'line-through', mr: 1, color: 'text.secondary' }}
+      <Grid container spacing={2}>
+        {/* Product Image */}
+        <Grid item xs={3} sm={2}>
+          <Box
+            component="img"
+            src={images[0] || '/api/placeholder/120/160'}
+            alt={name}
+            sx={{
+              width: '100%',
+              height: '160px',
+              objectFit: 'cover',
+              borderRadius: '4px',
+              border: `1px solid ${theme.palette.shades.light}`,
+            }}
+          />
+        </Grid>
+
+        {/* Product Details */}
+        <Grid item xs={9} sm={10}>
+          <Grid container>
+            {/* Left Side: Highlighted Product Name, Size, Qty */}
+            <Grid item xs={12} md={7}>
+              <Typography
+                variant="h6"
+                sx={{
+                  fontWeight: 700,
+                  fontSize: '16px',
+                  color: theme.palette.custom.highlight || '#282c3f',
+                }}
+              >
+                {name}
+              </Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                {size && (
+                  <Box sx={{ mr: 3 }}>
+                    <Typography component="span" sx={{ fontSize: '13px', color: '#666', mr: 1 }}>
+                      Size:
+                    </Typography>
+                    <Typography component="span" sx={{ fontSize: '13px', fontWeight: 600 }}>
+                      {size}
+                    </Typography>
+                  </Box>
+                )}
+
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <Typography component="span" sx={{ fontSize: '13px', color: '#666', mr: 1 }}>
+                    Qty:
+                  </Typography>
+                  <IconButton
+                    size="small"
+                    onClick={() => handleQuantityChange(quantity - 1)}
+                    disabled={quantity <= 1}
+                    sx={{
+                      p: 0.5,
+                      color: quantity <= 1
+                        ? theme.palette.shades.medium
+                        : theme.palette.custom.highlight,
+                    }}
+                  >
+                    <RemoveCircleOutlineIcon fontSize="small" />
+                  </IconButton>
+                  <Typography
+                    sx={{
+                      mx: 1,
+                      fontWeight: 600,
+                      fontSize: '14px',
+                      width: '20px',
+                      textAlign: 'center',
+                    }}
+                  >
+                    {quantity}
+                  </Typography>
+                  <IconButton
+                    size="small"
+                    onClick={() => handleQuantityChange(quantity + 1)}
+                    sx={{
+                      p: 0.5,
+                      color: theme.palette.custom.highlight,
+                    }}
+                  >
+                    <AddCircleOutlineIcon fontSize="small" />
+                  </IconButton>
+                </Box>
+              </Box>
+              <Typography variant="body2" sx={{ color: '#333', fontSize: '13px' }}>
+                Delivery by 21 Mar 2025
+              </Typography>
+              <Typography variant="body2" sx={{ color: '#666', fontSize: '12px' }}>
+                7 days return available
+              </Typography>
+            </Grid>
+
+            {/* Right Side: Price & Remove */}
+            <Grid
+              item
+              xs={12}
+              md={5}
+              sx={{
+                textAlign: { xs: 'left', md: 'right' },
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+              }}
             >
-              ₹{price.toFixed(2)}
-            </Typography>
-            <Typography variant="body1" color={theme.palette.custom?.highlight || 'primary'} fontWeight="bold">
-              ₹{discountedPrice.toFixed(2)}
-            </Typography>
-            <Typography
-              variant="caption"
-              color="error"
-              sx={{ ml: 1, fontWeight: 'bold' }}
-            >
-              {discountPercent}% OFF
-            </Typography>
-          </Box>
-        ) : (
-          <Typography variant="body1" color="text.primary" gutterBottom>
-            ₹{price.toFixed(2)}
-          </Typography>
-        )}
-        <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
-          <IconButton onClick={handleDecrease} disabled={item.quantity <= 1}>
-            <RemoveIcon fontSize="small" />
-          </IconButton>
-          <Typography variant="body1" sx={{ mx: 1, fontWeight: 'bold' }}>
-            {item.quantity}
-          </Typography>
-          <IconButton onClick={handleIncrease}>
-            <AddIcon fontSize="small" />
-          </IconButton>
-        </Box>
-        <Box sx={{ mt: 2 }}>
-          <Button
-            variant="outlined"
-            color="error"
-            onClick={handleRemove}
-            startIcon={<DeleteIcon />}
-            size="small"
-          >
-            Remove
-          </Button>
-        </Box>
-      </CardContent>
-    </Card>
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'flex-end',
+                  mb: 1,
+                }}
+              >
+                <Typography sx={{ fontWeight: 600, fontSize: '16px', mr: 1 }}>
+                  ₹{price}
+                </Typography>
+                {originalPrice > price && (
+                  <>
+                    <Typography
+                      sx={{
+                        textDecoration: 'line-through',
+                        color: '#999',
+                        fontSize: '14px',
+                        mr: 1,
+                      }}
+                    >
+                      ₹{originalPrice}
+                    </Typography>
+                    <Typography
+                      sx={{
+                        color: '#ff3f6c',
+                        fontSize: '14px',
+                        fontWeight: 600,
+                      }}
+                    >
+                      {discountPercent}% OFF
+                    </Typography>
+                  </>
+                )}
+              </Box>
+              <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                <Button
+                  onClick={handleRemoveItem}
+                  startIcon={<DeleteOutlineIcon fontSize="small" />}
+                  sx={{
+                    color: '#282c3f',
+                    textTransform: 'uppercase',
+                    fontSize: '12px',
+                    fontWeight: 600,
+                    minWidth: 'auto',
+                    '&:hover': {
+                      backgroundColor: 'transparent',
+                      color: theme.palette.custom.highlight,
+                    },
+                  }}
+                >
+                  Remove
+                </Button>
+              </Box>
+            </Grid>
+          </Grid>
+        </Grid>
+      </Grid>
+    </Box>
   );
 };
 
