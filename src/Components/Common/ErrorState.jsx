@@ -14,7 +14,9 @@ const ErrorState = ({
     description = "An error occurred while fetching data. Please try again later.",
     buttonText = "RETRY",
     onRetry,
+    width,
 }) => {
+    const minHeight = width ? '50vh' : '100vh';
     const displayDescription =
         typeof description === 'object'
             ? description.message || JSON.stringify(description)
@@ -30,7 +32,7 @@ const ErrorState = ({
                 alignItems: 'center',
                 justifyContent: 'center',
                 gap: 2,
-                minHeight: '100vh',
+                minHeight,
             }}
         >
             <ErrorOutlineIcon

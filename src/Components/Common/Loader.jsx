@@ -1,15 +1,16 @@
 import React from 'react';
 import { Box, CircularProgress, useTheme } from '@mui/material';
 
-const Loader = () => {
+const Loader = ({ width }) => {
     const theme = useTheme();
+    const minHeight = width ? '50vh' : '100vh';
     return (
         <Box
             sx={{
                 display: 'flex',
                 justifyContent: 'center',
                 alignItems: 'center',
-                minHeight: '100vh', // adjust height as needed
+                minHeight,
             }}
         >
             <CircularProgress sx={{ color: theme.palette.custom.highlight }} />

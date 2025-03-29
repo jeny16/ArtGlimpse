@@ -24,7 +24,6 @@ import ClearIcon from '@mui/icons-material/Clear';
 import TuneIcon from '@mui/icons-material/Tune';
 
 const FilterAccordion = styled(Accordion)(({ theme }) => ({
-  // Allow overflow so Slider tooltips are not clipped
   overflow: 'visible',
   border: `1px solid ${theme.palette.divider}`,
   boxShadow: 'none',
@@ -51,7 +50,6 @@ const FilterAccordionSummary = styled(AccordionSummary)(({ theme }) => ({
   },
 }));
 
-// Also ensure AccordionDetails can overflow if needed
 const FilterAccordionDetails = styled(AccordionDetails)(() => ({
   overflow: 'visible',
 }));
@@ -88,23 +86,6 @@ const StyledSearchField = styled(TextField)(({ theme }) => ({
       borderColor: theme.palette.custom.highlight,
       borderWidth: 1,
     },
-  },
-}));
-
-const ScrollableFormGroup = styled(FormGroup)(({ theme }) => ({
-  maxHeight: 200,
-  overflowY: 'auto',
-  marginRight: theme.spacing(-1),
-  paddingRight: theme.spacing(1),
-  '&::-webkit-scrollbar': {
-    width: 6,
-  },
-  '&::-webkit-scrollbar-thumb': {
-    backgroundColor: theme.palette.grey[400],
-    borderRadius: 3,
-  },
-  '&::-webkit-scrollbar-track': {
-    backgroundColor: theme.palette.grey[200],
   },
 }));
 
@@ -375,45 +356,43 @@ const FilterSidebar = ({
             )}
           </Box>
         </FilterAccordionSummary>
-        <AccordionDetails sx={{ p: 0 }}>
-          <ScrollableFormGroup sx={{ p: 1 }}>
-            {allCategories.map((category) => {
-              const normalizedCategory = category.toLowerCase().trim();
-              const isSelected = selectedCategories.includes(normalizedCategory);
-              return (
-                <CategoryLabel
-                  key={category}
-                  control={
-                    <Checkbox
-                      size="small"
-                      checked={isSelected}
-                      onChange={(e) =>
-                        onCategoryChange(category, e.target.checked)
-                      }
-                      sx={{
-                        color: theme.palette.text.secondary,
-                        '&.Mui-checked': {
-                          color:
-                            theme.palette.custom.highlight ||
-                            theme.palette.primary.main,
-                        },
-                      }}
-                    />
-                  }
-                  label={category}
-                  sx={{
-                    '& .MuiTypography-root': {
-                      fontWeight: isSelected ? 600 : 400,
-                      color: isSelected
-                        ? theme.palette.custom.highlight ||
-                        theme.palette.primary.main
-                        : theme.palette.text.primary,
-                    },
-                  }}
-                />
-              );
-            })}
-          </ScrollableFormGroup>
+        <AccordionDetails sx={{ p: 1 }}>
+          {allCategories.map((category) => {
+            const normalizedCategory = category.toLowerCase().trim();
+            const isSelected = selectedCategories.includes(normalizedCategory);
+            return (
+              <CategoryLabel
+                key={category}
+                control={
+                  <Checkbox
+                    size="small"
+                    checked={isSelected}
+                    onChange={(e) =>
+                      onCategoryChange(category, e.target.checked)
+                    }
+                    sx={{
+                      color: theme.palette.text.secondary,
+                      '&.Mui-checked': {
+                        color:
+                          theme.palette.custom.highlight ||
+                          theme.palette.primary.main,
+                      },
+                    }}
+                  />
+                }
+                label={category}
+                sx={{
+                  '& .MuiTypography-root': {
+                    fontWeight: isSelected ? 600 : 400,
+                    color: isSelected
+                      ? theme.palette.custom.highlight ||
+                      theme.palette.primary.main
+                      : theme.palette.text.primary,
+                  },
+                }}
+              />
+            );
+          })}
         </AccordionDetails>
       </FilterAccordion>
 
@@ -520,44 +499,42 @@ const FilterSidebar = ({
             )}
           </Box>
         </FilterAccordionSummary>
-        <AccordionDetails sx={{ p: 0 }}>
-          <ScrollableFormGroup sx={{ p: 1 }}>
-            {discountOptions.map((discountValue) => {
-              const isChecked = discountFilters.includes(discountValue);
-              return (
-                <CategoryLabel
-                  key={discountValue}
-                  control={
-                    <Checkbox
-                      size="small"
-                      checked={isChecked}
-                      onChange={(e) =>
-                        onDiscountChange(discountValue, e.target.checked)
-                      }
-                      sx={{
-                        color: theme.palette.text.secondary,
-                        '&.Mui-checked': {
-                          color:
-                            theme.palette.custom.highlight ||
-                            theme.palette.primary.main,
-                        },
-                      }}
-                    />
-                  }
-                  label={`${discountValue}% or more`}
-                  sx={{
-                    '& .MuiTypography-root': {
-                      fontWeight: isChecked ? 600 : 400,
-                      color: isChecked
-                        ? theme.palette.custom.highlight ||
-                        theme.palette.primary.main
-                        : theme.palette.text.primary,
-                    },
-                  }}
-                />
-              );
-            })}
-          </ScrollableFormGroup>
+        <AccordionDetails sx={{ p: 1 }}>
+          {discountOptions.map((discountValue) => {
+            const isChecked = discountFilters.includes(discountValue);
+            return (
+              <CategoryLabel
+                key={discountValue}
+                control={
+                  <Checkbox
+                    size="small"
+                    checked={isChecked}
+                    onChange={(e) =>
+                      onDiscountChange(discountValue, e.target.checked)
+                    }
+                    sx={{
+                      color: theme.palette.text.secondary,
+                      '&.Mui-checked': {
+                        color:
+                          theme.palette.custom.highlight ||
+                          theme.palette.primary.main,
+                      },
+                    }}
+                  />
+                }
+                label={`${discountValue}% or more`}
+                sx={{
+                  '& .MuiTypography-root': {
+                    fontWeight: isChecked ? 600 : 400,
+                    color: isChecked
+                      ? theme.palette.custom.highlight ||
+                      theme.palette.primary.main
+                      : theme.palette.text.primary,
+                  },
+                }}
+              />
+            );
+          })}
         </AccordionDetails>
       </FilterAccordion>
 
@@ -596,42 +573,40 @@ const FilterSidebar = ({
             )}
           </Box>
         </FilterAccordionSummary>
-        <AccordionDetails sx={{ p: 0 }}>
-          <ScrollableFormGroup sx={{ p: 1 }}>
-            {countries.map((country) => {
-              const isSelected = selectedCountries.includes(country);
-              return (
-                <CategoryLabel
-                  key={country}
-                  control={
-                    <Checkbox
-                      size="small"
-                      checked={isSelected}
-                      onChange={(e) => onCountryChange(country, e.target.checked)}
-                      sx={{
-                        color: theme.palette.text.secondary,
-                        '&.Mui-checked': {
-                          color:
-                            theme.palette.custom.highlight ||
-                            theme.palette.primary.main,
-                        },
-                      }}
-                    />
-                  }
-                  label={country}
-                  sx={{
-                    '& .MuiTypography-root': {
-                      fontWeight: isSelected ? 600 : 400,
-                      color: isSelected
-                        ? theme.palette.custom.highlight ||
-                        theme.palette.primary.main
-                        : theme.palette.text.primary,
-                    },
-                  }}
-                />
-              );
-            })}
-          </ScrollableFormGroup>
+        <AccordionDetails sx={{ p: 1 }}>
+          {countries.map((country) => {
+            const isSelected = selectedCountries.includes(country);
+            return (
+              <CategoryLabel
+                key={country}
+                control={
+                  <Checkbox
+                    size="small"
+                    checked={isSelected}
+                    onChange={(e) => onCountryChange(country, e.target.checked)}
+                    sx={{
+                      color: theme.palette.text.secondary,
+                      '&.Mui-checked': {
+                        color:
+                          theme.palette.custom.highlight ||
+                          theme.palette.primary.main,
+                      },
+                    }}
+                  />
+                }
+                label={country}
+                sx={{
+                  '& .MuiTypography-root': {
+                    fontWeight: isSelected ? 600 : 400,
+                    color: isSelected
+                      ? theme.palette.custom.highlight ||
+                      theme.palette.primary.main
+                      : theme.palette.text.primary,
+                  },
+                }}
+              />
+            );
+          })}
         </AccordionDetails>
       </FilterAccordion>
     </Stack>

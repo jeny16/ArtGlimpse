@@ -1,5 +1,5 @@
 import React, { memo, useState } from 'react';
-import { Search, Menu as MenuIcon, X as CloseIcon, Heart, ShoppingCart, User, LogOut, FileText } from 'lucide-react';
+import { Search, Menu as MenuIcon, X as CloseIcon, Heart, ShoppingCart, User } from 'lucide-react';
 import {
   AppBar,
   Box,
@@ -10,11 +10,7 @@ import {
   TextField,
   Typography,
   useTheme,
-  Menu,
-  MenuItem,
-  Divider,
-  ListItemIcon,
-  ListItemText,
+  Divider
 } from '@mui/material';
 import { Link, useNavigate } from 'react-router-dom';
 import { styled } from '@mui/material/styles';
@@ -26,7 +22,7 @@ const StyledAppBar = styled(AppBar)(({ theme }) => ({
   backgroundColor: theme.palette.primary.main,
   color: theme.palette.neutral.light,
   boxShadow: 'none',
-  borderBottom: '1px solid #dbd4c7',
+  borderBottom: '1px solid #dbd4c7'
 }));
 
 const StyledButton = styled(Button)(({ theme }) => ({
@@ -38,19 +34,19 @@ const StyledButton = styled(Button)(({ theme }) => ({
   padding: '8px 16px',
   '&:hover': {
     backgroundColor: 'transparent',
-    color: '#000',
+    color: '#000'
   },
   '&.MuiButtonBase-root': {
-    disableRipple: true,
-  },
+    disableRipple: true
+  }
 }));
 
 const IconWrapper = styled(IconButton)(({ theme }) => ({
   color: theme.palette.custom.highlight,
   '&:hover': {
     backgroundColor: 'transparent',
-    color: theme.palette.custom.accent,
-  },
+    color: theme.palette.custom.accent
+  }
 }));
 
 const Header = () => {
@@ -61,12 +57,6 @@ const Header = () => {
 
   // Get isLoggedIn from Redux
   const isLoggedIn = useSelector((state) => state.auth.isLoggedIn);
-
-  const handleLogout = () => {
-    authService.logout();
-    dispatch(logout());
-    navigate('/login');
-  };
 
   const renderAuthButtons = () => (
     <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 2 }}>
@@ -80,8 +70,8 @@ const Header = () => {
             fontWeight: 500,
             '&:hover': {
               borderColor: theme.palette.custom.accent,
-              backgroundColor: theme.palette.primary.main,
-            },
+              backgroundColor: theme.palette.primary.main
+            }
           }}
         >
           Login
@@ -95,7 +85,7 @@ const Header = () => {
             textTransform: 'none',
             fontWeight: 500,
             color: '#fff',
-            '&:hover': { backgroundColor: theme.palette.custom.accent },
+            '&:hover': { backgroundColor: theme.palette.custom.accent }
           }}
         >
           Sign Up
@@ -139,7 +129,7 @@ const Header = () => {
           display: 'flex',
           flexDirection: 'column',
           padding: 0,
-          boxShadow: 'inset 0 0 10px rgba(0, 0, 0, 0.1)',
+          boxShadow: 'inset 0 0 10px rgba(0, 0, 0, 0.1)'
         }}
       >
         <Box display="flex" justifyContent="flex-end" p={2}>
@@ -177,7 +167,7 @@ const Header = () => {
                   onClick={() => setDrawerOpen(false)}
                   sx={{
                     color: theme.palette.custom.highlight,
-                    borderColor: theme.palette.custom.highlight,
+                    borderColor: theme.palette.custom.highlight
                   }}
                 >
                   Login
@@ -190,7 +180,7 @@ const Header = () => {
                   onClick={() => setDrawerOpen(false)}
                   sx={{
                     backgroundColor: theme.palette.custom.highlight,
-                    color: '#fff',
+                    color: '#fff'
                   }}
                 >
                   Sign Up
@@ -205,7 +195,7 @@ const Header = () => {
                 pt: 2,
                 display: 'flex',
                 flexDirection: 'column',
-                gap: 1,
+                gap: 1
               }}
             >
               <Link to="/wishlist" style={{ width: '100%' }}>
@@ -214,7 +204,7 @@ const Header = () => {
                   startIcon={<Heart size={20} />}
                   sx={{
                     borderRadius: 1,
-                    '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)' },
+                    '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)' }
                   }}
                 >
                   Wishlist
@@ -226,7 +216,7 @@ const Header = () => {
                   startIcon={<ShoppingCart size={20} />}
                   sx={{
                     borderRadius: 1,
-                    '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)' },
+                    '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)' }
                   }}
                 >
                   Cart
@@ -238,31 +228,13 @@ const Header = () => {
                   startIcon={<User size={20} />}
                   sx={{
                     borderRadius: 1,
-                    '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)' },
+                    '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)' }
                   }}
                 >
                   Profile
                 </StyledButton>
               </Link>
-              <StyledButton
-                onClick={() => {
-                  handleLogout();
-                  setDrawerOpen(false);
-                }}
-                sx={{
-                  mt: 1,
-                  color: theme.palette.error.main,
-                  borderTop: '1px solid #dbd4c7',
-                  borderRadius: 1,
-                  paddingTop: 2,
-                  '&:hover': {
-                    backgroundColor: 'rgba(211, 47, 47, 0.04)',
-                    color: theme.palette.error.dark,
-                  },
-                }}
-              >
-                Logout
-              </StyledButton>
+              {/* Logout functionality is removed from header */}
             </Box>
           )}
         </Box>
@@ -307,7 +279,7 @@ const Header = () => {
                         style={{ marginRight: 8, color: theme.palette.secondary.main }}
                       />
                     ),
-                    sx: { paddingInline: '10px', fontSize: '14px' },
+                    sx: { paddingInline: '10px', fontSize: '14px' }
                   }}
                   sx={{
                     backgroundColor: theme.palette.primary.main,
@@ -316,12 +288,12 @@ const Header = () => {
                     '& .MuiOutlinedInput-root': {
                       '& fieldset': { border: 'none' },
                       '&:hover fieldset': { borderColor: theme.palette.primary.dark },
-                      '&.Mui-focused fieldset': { borderColor: theme.palette.custom.highlight },
+                      '&.Mui-focused fieldset': { borderColor: theme.palette.custom.highlight }
                     },
                     '& input::placeholder': {
                       color: theme.palette.secondary.main,
-                      fontStyle: 'italic',
-                    },
+                      fontStyle: 'italic'
+                    }
                   }}
                 />
               </Box>

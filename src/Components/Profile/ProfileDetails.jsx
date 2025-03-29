@@ -1,13 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {
-    Box,
-    Typography,
-    Paper,
-    Avatar,
-    Button,
-    Grid,
-    Tooltip
-} from '@mui/material';
+import { Box, Typography, Paper, Avatar, Button, Grid } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
 import { useForm } from 'react-hook-form';
 import EditIcon from '@mui/icons-material/Edit';
@@ -19,7 +11,7 @@ import CakeIcon from '@mui/icons-material/Cake';
 import PhoneAndroidIcon from '@mui/icons-material/PhoneAndroid';
 import ContactsIcon from '@mui/icons-material/Contacts';
 import { FormField } from '../index';
-import { updateProfile } from '../../store/profileSlice';
+import { updateProfile, fetchProfile } from '../../store/profileSlice';
 
 const ProfileHeader = ({ userData }) => (
     <Box
@@ -52,7 +44,6 @@ const ProfileHeader = ({ userData }) => (
     </Box>
 );
 
-// Field display component for view mode
 const ProfileFieldDisplay = ({ label, value, icon }) => (
     <Box sx={{ display: 'flex', alignItems: 'center', p: 2, borderRadius: 2, borderBottom: '1px solid #f0f0f0' }}>
         <Box
@@ -85,7 +76,6 @@ const ProfileFieldDisplay = ({ label, value, icon }) => (
     </Box>
 );
 
-// Form component with validations for all fields
 const ProfileDetailsForm = ({ register, errors, handleSubmit, onSubmit, onCancel }) => (
     <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{ width: '100%' }}>
         <Grid container spacing={3}>
@@ -224,11 +214,12 @@ const ProfileDetailsForm = ({ register, errors, handleSubmit, onSubmit, onCancel
     </Box>
 );
 
-const ProfileDetails = ({ userData }) => {
+const ProfileDetails = () => {
     const dispatch = useDispatch();
-    const [editing, setEditing] = useState(false);
+    const { profile: userData, loading } = useSelector(state => state.profile);
     const auth = useSelector(state => state.auth);
     const userId = auth.userData?.userId || auth.userData?._id;
+    const [editing, setEditing] = useState(false);
 
     const {
         register,
@@ -247,7 +238,14 @@ const ProfileDetails = ({ userData }) => {
         }
     });
 
-    // Reset form when userData changes
+    useEffect(() => {
+        // If userData is missing, fetch it
+        if (userId && !userData) {
+            dispatch(fetchProfile({ userId }));
+        }
+    }, [dispatch, userId, userData]);
+
+    // Reset form whenever userData changes
     useEffect(() => {
         reset({
             username: userData?.username || '',
@@ -263,7 +261,9 @@ const ProfileDetails = ({ userData }) => {
     const onSubmit = async (data) => {
         try {
             if (userId) {
-                await dispatch(updateProfile({ userId, profileData: data }));
+                // Merge new data with existing userData to preserve other fields
+                const mergedData = { ...userData, ...data };
+                await dispatch(updateProfile({ userId, profileData: mergedData }));
                 setEditing(false);
             }
         } catch (error) {
@@ -271,8 +271,8 @@ const ProfileDetails = ({ userData }) => {
         }
     };
 
-    // Utility to display value or fallback to 'NA'
-    const getValue = (value) => (value && value.trim() !== '' ? value : 'NA');
+    const getValue = (value) =>
+        value && value.trim() !== '' ? value : 'NA';
 
     const viewFields = [
         { label: 'Full Name', value: getValue(userData?.username), icon: <PersonIcon /> },
@@ -284,14 +284,12 @@ const ProfileDetails = ({ userData }) => {
         { label: 'Hint Name', value: getValue(userData?.hintName), icon: <ContactsIcon /> }
     ];
 
+    if (loading) {
+        return <Typography>Loading...</Typography>;
+    }
+
     return (
-        <Paper
-            sx={{
-                width: '100%',
-                borderRadius: 2,
-                overflow: 'hidden',
-            }}
-        >
+        <Paper sx={{ width: '100%', borderRadius: 2, overflow: 'hidden' }}>
             <ProfileHeader userData={userData} />
             <Box sx={{ p: { xs: 2, sm: 4 } }}>
                 {editing ? (

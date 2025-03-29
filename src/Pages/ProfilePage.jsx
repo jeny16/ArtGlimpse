@@ -1,48 +1,26 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { Box, Typography, Container, Paper } from '@mui/material';
-import { ProfileSidebar, ProfileDetails, Addresses, Orders, Coupons, SavedCards, SavedUpi, DeleteAccount, Terms, Privacy } from '../Components/index';
+import { ProfileSidebar } from '../Components/index';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchProfile } from '../store/profileSlice';
-import OrderHistory from '../Components/Profile/OrderHistory';
+import { Outlet, useLocation } from 'react-router-dom';
 
 const ProfilePage = () => {
-  const [activeSection, setActiveSection] = useState('profile');
   const dispatch = useDispatch();
   const { profile, loading, error } = useSelector(state => state.profile);
   const auth = useSelector(state => state.auth);
   const userId = auth.userData?.userId || auth.userData?._id;
-  console.log("profile page :- ", profile);
+
+  const location = useLocation();
+  // Determine active section from URL; expecting URL like /profile/<section>
+  const pathParts = location.pathname.split('/');
+  const activeSection = pathParts[2] || 'profile';
+
   useEffect(() => {
     if (userId) {
       dispatch(fetchProfile({ userId }));
     }
   }, [dispatch, userId]);
-
-  const renderContent = () => {
-    switch (activeSection) {
-      case 'profile':
-        return <ProfileDetails userData={profile} />;
-      case 'addresses':
-        return <Addresses />;
-      case 'orders':
-        // return <Orders orders={profile?.orders || []} />;
-        return <OrderHistory />
-      case 'coupons':
-        return <Coupons />;
-      case 'cards':
-        return <SavedCards />;
-      case 'upi':
-        return <SavedUpi />;
-      case 'delete':
-        return <DeleteAccount />;
-      case 'terms':
-        return <Terms />;
-      case 'privacy':
-        return <Privacy />;
-      default:
-        return <ProfileDetails userData={profile} />;
-    }
-  };
 
   if (!userId) {
     return (
@@ -95,14 +73,15 @@ const ProfilePage = () => {
       {loading ? (
         <Typography>Loading...</Typography>
       ) : error ? (
-        null
+        <Typography>Error: {error}</Typography>
       ) : (
         <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 4 }}>
           <Box sx={{ width: { xs: '100%', md: '280px' }, flexShrink: 0 }}>
-            <ProfileSidebar activeSection={activeSection} setActiveSection={setActiveSection} />
+            <ProfileSidebar activeSection={activeSection} user={profile} />
           </Box>
           <Box sx={{ flexGrow: 1, width: { xs: '100%', md: 'calc(100% - 320px)' } }}>
-            {renderContent()}
+            {/* Pass profile to child routes via Outlet context */}
+            <Outlet context={{ profile }} />
           </Box>
         </Box>
       )}
