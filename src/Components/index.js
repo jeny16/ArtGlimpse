@@ -42,7 +42,7 @@ import DeleteAccount from './Profile/DeleteAccount'
 import Coupons from './Profile/Coupons'
 import Terms from './Profile/Terms'
 import Privacy from './Profile/Privacy'
-import PaymentStatic from './PaymentStatic'
+import CheckoutPayment from './CheckoutPayment'
 import CartReview from './CartReview';
 import AddressSelection from './AddressSelection';
 
@@ -90,7 +90,7 @@ export {
     DeleteAccount,
     Terms,
     Privacy,
-    PaymentStatic,
+    CheckoutPayment,
     CartReview,
     AddressSelection,
     OrderHistory

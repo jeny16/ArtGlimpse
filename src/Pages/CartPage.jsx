@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Container, Grid, Box, Typography } from '@mui/material';
 import {
     PriceDetails,
-    PaymentStatic,
+    CheckoutPayment,
     AddressSelection,
     CartReview,
     StepperNav,
@@ -10,7 +10,7 @@ import {
     ErrorState,
     EmptyState,
     CommonButton
-} from '../Components/index';
+} from '../Components';
 import ShoppingCartOutlinedIcon from '@mui/icons-material/ShoppingCartOutlined';
 import { useDispatch, useSelector } from 'react-redux';
 import { createOrder } from '../store/orderSlice';
@@ -18,6 +18,34 @@ import { clearCart, fetchCart } from '../store/cartSlice';
 import { useNavigate } from 'react-router-dom';
 import { fetchProfile } from '../store/profileSlice';
 import { toast } from 'react-toastify';
+import { Elements } from '@stripe/react-stripe-js';
+import { loadStripe } from '@stripe/stripe-js';
+import conf from '../conf';
+
+const stripePromise = loadStripe(conf.stripePublishableKey);
+
+const computeCartTotal = (cart) => {
+    let totalMRP = 0;
+    let totalDiscount = 0;
+    let shippingCost = 0;
+    if (!cart || !cart.items) return 0;
+    cart.items.forEach((item) => {
+        const price = Number(item.productData.price) || 0;
+        const quantity = Number(item.quantity) || 0;
+        totalMRP += price * quantity;
+        const discount = Number(item.discountPercent) || 0;
+        if (discount) {
+            totalDiscount += (price * discount * quantity) / 100;
+        }
+        const shipping = Number(item.shippingCost) || 0;
+        shippingCost = Math.max(shippingCost, shipping);
+    });
+    let couponDiscount = 0;
+    if (cart.couponCode === 'NEWUSER') couponDiscount = totalMRP * 0.1;
+    const donation = Number(cart.donationAmount) || 0;
+    const totalPayable = totalMRP - totalDiscount - couponDiscount + shippingCost + donation;
+    return totalPayable;
+};
 
 const CartPage = () => {
     const dispatch = useDispatch();
@@ -29,9 +57,10 @@ const CartPage = () => {
 
     // Checkout steps
     const [activeStep, setActiveStep] = useState(0);
-    // Lifted state for selected address (passed into AddressSelection)
+    // Selected address for shipping
     const [selectedAddress, setSelectedAddress] = useState(null);
     const steps = ['Bag', 'Address', 'Payment'];
+    const paymentRef = useRef();
 
     useEffect(() => {
         if (userId) {
@@ -55,17 +84,18 @@ const CartPage = () => {
             }
             setActiveStep(2);
         } else if (activeStep === 2) {
-            const orderData = {
-                userId: profile.id,
-                cart: cart,
-                shippingAddress: selectedAddress,
-            };
             try {
+                await paymentRef.current.confirmPayment();
+                const orderData = {
+                    userId: profile.id,
+                    cart: cart,
+                    shippingAddress: selectedAddress,
+                };
                 await dispatch(createOrder(orderData)).unwrap();
                 dispatch(clearCart());
                 navigate('/order-confirmation');
             } catch (err) {
-                toast.error('Order creation failed: ' + err);
+                toast.error('Payment failed: ' + err.message);
             }
         }
     };
@@ -92,9 +122,7 @@ const CartPage = () => {
     }
 
     if (status === 'failed') {
-        return (
-            <ErrorState onRetry={() => dispatch(fetchCart(userId))} description={error} />
-        );
+        return <ErrorState onRetry={() => dispatch(fetchCart(userId))} description={error} />;
     }
 
     if (!cart || !cart.items || cart.items.length === 0) {
@@ -109,6 +137,8 @@ const CartPage = () => {
         );
     }
 
+    const totalPrice = computeCartTotal(cart);
+
     return (
         <Container maxWidth="lg" sx={{ py: 4, mt: 20 }}>
             <StepperNav activeStep={activeStep} />
@@ -122,13 +152,24 @@ const CartPage = () => {
                             setSelectedAddress={setSelectedAddress}
                         />
                     )}
-                    {activeStep === 2 && <PaymentStatic />}
+                    {activeStep === 2 && (
+                        <Elements stripe={stripePromise}>
+                            <CheckoutPayment ref={paymentRef} totalPrice={totalPrice} />
+                        </Elements>
+                    )}
                 </Grid>
 
                 {/* Right Column */}
                 <Grid item xs={12} md={4}>
                     <PriceDetails />
-                    <Box sx={{ mt: 3, gap: 2, display: 'flex', justifyContent: 'space-between' }}>
+                    <Box
+                        sx={{
+                            mt: 3,
+                            gap: 2,
+                            display: 'flex',
+                            justifyContent: 'space-between'
+                        }}
+                    >
                         {activeStep > 0 && (
                             <CommonButton
                                 btnText="Back"
@@ -139,8 +180,8 @@ const CartPage = () => {
                                     border: (theme) => `1px solid ${theme.palette.custom.highlight}`,
                                     '&:hover': {
                                         bgcolor: (theme) => theme.palette.custom.accent,
-                                        color: '#fff',
-                                    },
+                                        color: '#fff'
+                                    }
                                 }}
                             />
                         )}
@@ -152,8 +193,8 @@ const CartPage = () => {
                                 bgcolor: (theme) => theme.palette.custom.highlight,
                                 color: '#fff',
                                 '&:hover': {
-                                    bgcolor: (theme) => theme.palette.custom.accent,
-                                },
+                                    bgcolor: (theme) => theme.palette.custom.accent
+                                }
                             }}
                         />
                     </Box>
