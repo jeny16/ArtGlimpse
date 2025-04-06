@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Box, Grid, Typography, Button, IconButton } from '@mui/material';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
@@ -7,6 +7,7 @@ import { useTheme } from '@mui/material/styles';
 import { useDispatch, useSelector } from 'react-redux';
 import { removeFromCart, updateCartQuantity } from '../store/cartSlice';
 import { toast } from 'react-toastify';
+import { resolveImage } from "../actions/productService";
 
 const CartItem = ({ item }) => {
   const theme = useTheme();
@@ -26,7 +27,7 @@ const CartItem = ({ item }) => {
   const price = Number(item.price || productDetail.price || 0);
   const originalPrice = Number(item.originalPrice || productDetail.originalPrice || 0);
   const discountPercent = Number(item.discountPercent || productDetail.percentage_Discount || 0);
-  const images = item.images || productDetail.images || [];
+  // const images = item.images || productDetail.images || [];
   const discountedPrice = price - (price * discountPercent) / 100;
   const { quantity, size } = item;
 
@@ -41,6 +42,16 @@ const CartItem = ({ item }) => {
     toast.success("Product removed from cart");
   };
 
+  const images = useMemo(() => {
+      if (productDetail?.imagePreviews?.length > 0) {
+        return productDetail.imagePreviews;
+      } else if (productDetail?.images?.length > 0) {
+        return productDetail.images.map((img) => resolveImage(img));
+      } else {
+        return ["https://via.placeholder.com/400x300?text=No+Image"];
+      }
+    }, [productDetail]);
+  
   return (
     <Box
       sx={{

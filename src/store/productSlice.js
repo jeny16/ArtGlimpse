@@ -15,10 +15,9 @@ export const fetchProducts = createAsyncThunk(
     async (_, thunkAPI) => {
         try {
             const data = await productService.getProducts();
-            console.log("data", data);
             return data;
         } catch (error) {
-            return thunkAPI.rejectWithValue(error);
+            return thunkAPI.rejectWithValue(error.message || "Failed to fetch products");
         }
     }
 );
@@ -31,7 +30,7 @@ export const fetchProductById = createAsyncThunk(
             const data = await productService.getProductById(productId);
             return data;
         } catch (error) {
-            return thunkAPI.rejectWithValue(error);
+            return thunkAPI.rejectWithValue(error.message || "Failed to fetch product");
         }
     }
 );
@@ -44,7 +43,7 @@ export const createProduct = createAsyncThunk(
             const data = await productService.createProduct(productData);
             return data;
         } catch (error) {
-            return thunkAPI.rejectWithValue(error);
+            return thunkAPI.rejectWithValue(error.message || "Failed to create product");
         }
     }
 );
@@ -57,7 +56,7 @@ export const updateProduct = createAsyncThunk(
             const data = await productService.updateProduct(id, productData);
             return data;
         } catch (error) {
-            return thunkAPI.rejectWithValue(error);
+            return thunkAPI.rejectWithValue(error.message || "Failed to update product");
         }
     }
 );
@@ -70,7 +69,7 @@ export const deleteProduct = createAsyncThunk(
             await productService.deleteProduct(id);
             return id;
         } catch (error) {
-            return thunkAPI.rejectWithValue(error);
+            return thunkAPI.rejectWithValue(error.message || "Failed to delete product");
         }
     }
 );
@@ -79,27 +78,23 @@ const productSlice = createSlice({
     name: "product",
     initialState,
     reducers: {
-        // Optional synchronous reducers can go here
         clearProduct: (state) => {
             state.product = null;
         },
     },
     extraReducers: (builder) => {
         builder
-            // fetchProducts
             .addCase(fetchProducts.pending, (state) => {
                 state.isLoading = true;
             })
             .addCase(fetchProducts.fulfilled, (state, action) => {
                 state.isLoading = false;
                 state.products = action.payload;
-                console.log("action.payload", action.payload);
             })
             .addCase(fetchProducts.rejected, (state, action) => {
                 state.isLoading = false;
                 state.error = action.payload;
             })
-            // fetchProductById
             .addCase(fetchProductById.pending, (state) => {
                 state.isLoading = true;
             })
@@ -111,7 +106,6 @@ const productSlice = createSlice({
                 state.isLoading = false;
                 state.error = action.payload;
             })
-            // createProduct
             .addCase(createProduct.pending, (state) => {
                 state.isLoading = true;
             })
@@ -123,21 +117,20 @@ const productSlice = createSlice({
                 state.isLoading = false;
                 state.error = action.payload;
             })
-            // updateProduct
             .addCase(updateProduct.pending, (state) => {
                 state.isLoading = true;
             })
             .addCase(updateProduct.fulfilled, (state, action) => {
                 state.isLoading = false;
-                state.products = state.products.map((product) =>
-                    product.id === action.payload.id ? action.payload : product
+                const index = state.products.findIndex(
+                    (product) => product.id === action.payload.id
                 );
+                if (index !== -1) state.products[index] = action.payload;
             })
             .addCase(updateProduct.rejected, (state, action) => {
                 state.isLoading = false;
                 state.error = action.payload;
             })
-            // deleteProduct
             .addCase(deleteProduct.pending, (state) => {
                 state.isLoading = true;
             })

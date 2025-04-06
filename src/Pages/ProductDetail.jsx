@@ -58,6 +58,16 @@ const ProductDetail = () => {
     dispatch(fetchProductById(id));
   }, [dispatch, id]);
 
+  const images = useMemo(() => {
+    if (product?.imagePreviews?.length > 0) {
+      return product.imagePreviews;
+    } else if (product?.images?.length > 0) {
+      return product.images.map((img) => resolveImage(img));
+    } else {
+      return ["https://via.placeholder.com/400x300?text=No+Image"];
+    }
+  }, [product]);
+
   // ---------------------------
   // Add to Cart or View Cart
   // ---------------------------
@@ -194,7 +204,7 @@ const ProductDetail = () => {
   const price = product.price || 0;
   const discountActive = product.discount;
   const discountPercent = product.percentage_Discount || 0;
-  const images = product.images || [];
+  // const images = product.images || [];
 
   const tabContent = [
     {
