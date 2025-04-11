@@ -2,7 +2,7 @@ import React, { memo } from 'react';
 import { Container, Box, Typography, Button, Divider, Link, useTheme } from '@mui/material';
 import { useForm } from 'react-hook-form';
 import { FormField } from './index';
-import LoginImg from '/assets/WhatsApp Image 2025-01-14 at 12.19.10 AM.jpeg';
+import LoginImg from '../assets/WhatsApp Image 2025-01-14 at 12.19.10 AM.jpeg';
 import { useNavigate } from 'react-router-dom';
 import authService from '../actions/authService';
 import { useDispatch } from 'react-redux';

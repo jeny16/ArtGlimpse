@@ -9,7 +9,7 @@ import {
     useTheme,
 } from '@mui/material';
 import { useForm } from 'react-hook-form';
-import SignupImg from '/assets/WhatsApp Image 2025-01-14 at 12.19.10 AM.jpeg';
+import SignupImg from '../assets/WhatsApp Image 2025-01-14 at 12.19.10 AM.jpeg';
 import { FormField } from './index';
 import { useNavigate } from 'react-router-dom';
 import authService from '../actions/authService';
