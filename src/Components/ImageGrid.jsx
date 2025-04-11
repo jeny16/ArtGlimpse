@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Box, CardMedia } from '@mui/material';
 import { styled } from '@mui/material/styles';
+import { getImageUrl } from '../actions/getImage';
 
 const MainImageWrapper = styled(Box)(({ theme }) => ({
     position: 'relative',
@@ -44,7 +45,11 @@ const ImageGrid = ({ images = [] }) => {
     if (images.length === 0) {
         return (
             <MainImageWrapper>
-                <CardMedia component="img" image="https://via.placeholder.com/500" alt="Product" />
+                <CardMedia
+                    component="img"
+                    image="https://via.placeholder.com/500"
+                    alt="Product"
+                />
             </MainImageWrapper>
         );
     }
@@ -52,7 +57,8 @@ const ImageGrid = ({ images = [] }) => {
     if (images.length === 1) {
         return (
             <MainImageWrapper sx={{ p: 0, height: { xs: '350px', sm: '400px', md: '550px' } }}>
-                <StyledImage src={images[0]} alt="Product" />
+                {/* ← wrap in getImageUrl */}
+                <StyledImage src={getImageUrl(images[0])} alt="Product" />
             </MainImageWrapper>
         );
     }
@@ -81,13 +87,21 @@ const ImageGrid = ({ images = [] }) => {
                         onClick={() => setActiveImage(index)}
                     >
                         <Box sx={{ height: { xs: 60, md: 80 } }}>
-                            <ThumbnailImage src={img} alt={`Thumbnail ${index + 1}`} />
+                            {/* ← wrap in getImageUrl */}
+                            <ThumbnailImage
+                                src={getImageUrl(img)}
+                                alt={`Thumbnail ${index + 1}`}
+                            />
                         </Box>
                     </ThumbnailWrapper>
                 ))}
             </Box>
             <MainImageWrapper sx={{ flex: 1, height: { xs: '350px', sm: '400px', md: '550px' } }}>
-                <StyledImage src={images[activeImage]} alt={`Product view ${activeImage + 1}`} />
+                {/* ← wrap in getImageUrl */}
+                <StyledImage
+                    src={getImageUrl(images[activeImage])}
+                    alt={`Product view ${activeImage + 1}`}
+                />
             </MainImageWrapper>
         </Box>
     );

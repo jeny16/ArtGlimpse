@@ -1,3 +1,4 @@
+// components/CartItem.jsx
 import React from 'react';
 import { Box, Grid, Typography, Button, IconButton } from '@mui/material';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
@@ -7,21 +8,18 @@ import { useTheme } from '@mui/material/styles';
 import { useDispatch, useSelector } from 'react-redux';
 import { removeFromCart, updateCartQuantity } from '../store/cartSlice';
 import { toast } from 'react-toastify';
+import { getImageUrl } from '../actions/getImage';  // ← IMPORTED
 
 const CartItem = ({ item }) => {
   const theme = useTheme();
   const dispatch = useDispatch();
-
-  // Retrieve user data to get the uid (userId)
   const { userData } = useSelector((state) => state.auth);
   const uid = userData?.userId || userData?._id;
 
-  // Retrieve product details
   const { products } = useSelector((state) => state.product);
   const productDetail =
     products.find((prod) => prod._id === item.productId) || item.productData || {};
 
-  // Merge details: prioritize item values, then productDetail
   const name = item.name || productDetail.name || 'Product Name';
   const price = Number(item.price || productDetail.price || 0);
   const originalPrice = Number(item.originalPrice || productDetail.originalPrice || 0);
@@ -41,6 +39,9 @@ const CartItem = ({ item }) => {
     toast.success("Product removed from cart");
   };
 
+  // ← wrap fallback in getImageUrl too
+  const imgSrc = getImageUrl(images[0] || '/api/placeholder/120/160');
+
   return (
     <Box
       sx={{
@@ -53,7 +54,7 @@ const CartItem = ({ item }) => {
         <Grid item xs={3} sm={2}>
           <Box
             component="img"
-            src={images[0] || '/api/placeholder/120/160'}
+            src={imgSrc}   // ← UPDATED
             alt={name}
             sx={{
               width: '100%',
@@ -68,7 +69,7 @@ const CartItem = ({ item }) => {
         {/* Product Details */}
         <Grid item xs={9} sm={10}>
           <Grid container>
-            {/* Left Side: Highlighted Product Name, Size, Qty */}
+            {/* Left Side */}
             <Grid item xs={12} md={7}>
               <Typography
                 variant="h6"
@@ -91,7 +92,6 @@ const CartItem = ({ item }) => {
                     </Typography>
                   </Box>
                 )}
-
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                   <Typography component="span" sx={{ fontSize: '13px', color: '#666', mr: 1 }}>
                     Qty:
@@ -102,9 +102,10 @@ const CartItem = ({ item }) => {
                     disabled={quantity <= 1}
                     sx={{
                       p: 0.5,
-                      color: quantity <= 1
-                        ? theme.palette.shades.medium
-                        : theme.palette.custom.highlight,
+                      color:
+                        quantity <= 1
+                          ? theme.palette.shades.medium
+                          : theme.palette.custom.highlight,
                     }}
                   >
                     <RemoveCircleOutlineIcon fontSize="small" />
@@ -140,7 +141,7 @@ const CartItem = ({ item }) => {
               </Typography>
             </Grid>
 
-            {/* Right Side: Price & Remove */}
+            {/* Right Side */}
             <Grid
               item
               xs={12}

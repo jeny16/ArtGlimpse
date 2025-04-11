@@ -299,7 +299,7 @@ const ProductDetail = () => {
               color: theme.palette.custom.highlight,
               '&:hover': { textDecoration: 'underline' },
             }}
-            onClick={() => navigate('/products')}
+            onClick={() => navigate('/shop')}
           >
             {product.categories || 'Home Decor'} / {product.name || 'Handcrafted Product'}
           </Typography>

@@ -20,8 +20,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { addToWishlist, removeFromWishlist, fetchWishlist } from "../store/wishlistSlice";
 import { addToCart, fetchCart } from "../store/cartSlice";
+// Import the helper function to get a viewable image URL from Appwrite or a public URL.
+import { getImageUrl } from "../actions/getImage";
 
-// Module-level flag to ensure wishlist and cart are fetched only once
+// Module-level flags to ensure wishlist and cart are fetched only once
 let wishlistFetched = false;
 let cartFetched = false;
 
@@ -39,17 +41,17 @@ const ProductCard = ({ product }) => {
   const [currentImage, setCurrentImage] = useState(0);
   const [isFavorite, setIsFavorite] = useState(false);
 
-  // Use product.images if available; otherwise, a placeholder image
+  // Use product.images if available; otherwise use a placeholder.
   const images =
     product.images && product.images.length > 0
       ? product.images
       : ["https://via.placeholder.com/150"];
   const isOutOfStock = product.stock <= 0;
 
-  // Calculate product id once as a string
+  // Calculate product id as a string.
   const prodId = (product.id || product._id)?.toString();
 
-  // Check if product is in cart (comparing as strings)
+  // Check if product is in cart (comparing as strings).
   const inCart =
     cart &&
     cart.items &&
@@ -61,7 +63,7 @@ const ProductCard = ({ product }) => {
       return idStr === prodId;
     });
 
-  // Fetch wishlist only once if not loaded
+  // Fetch wishlist if not loaded already.
   useEffect(() => {
     if (
       auth.isLoggedIn &&
@@ -74,7 +76,7 @@ const ProductCard = ({ product }) => {
     }
   }, [auth, dispatch, wishlistState]);
 
-  // Fetch cart only once if not loaded so that filled cart icon shows immediately
+  // Fetch cart if not loaded already.
   useEffect(() => {
     if (
       auth.isLoggedIn &&
@@ -87,7 +89,7 @@ const ProductCard = ({ product }) => {
     }
   }, [auth, dispatch, cart]);
 
-  // Update local favorite state when wishlist changes
+  // Update local favorite state when wishlist changes.
   useEffect(() => {
     if (wishlistState?.products) {
       const exists = wishlistState.products.some(
@@ -115,7 +117,7 @@ const ProductCard = ({ product }) => {
     return () => timer && clearInterval(timer);
   }, [isHovered, images, isOutOfStock]);
 
-  // Determine if we're on the wishlist page
+  // Determine if we're on the wishlist page.
   const isOnWishlistPage = location.pathname.includes("/wishlist");
 
   const handleWishlistToggle = async () => {
@@ -195,6 +197,7 @@ const ProductCard = ({ product }) => {
     return inCart ? "View Cart" : "Add to Cart";
   }, [inCart]);
 
+  // Discount badge displayed on hover.
   const discountBadge = useMemo(() => {
     if (product.discount) {
       return (
@@ -253,7 +256,12 @@ const ProductCard = ({ product }) => {
           >
             <CardMedia
               component="img"
-              image={images[currentImage]}
+              image={
+                // Using getImageUrl on the first image in the images array
+                images && images.length > 0
+                  ? getImageUrl(images[currentImage])
+                  : "/api/placeholder/150"
+              }
               alt={product.name}
               sx={{
                 position: "absolute",
