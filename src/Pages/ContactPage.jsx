@@ -244,6 +244,7 @@ const ContactPage = () => {
                                                 sx={{ 
                                                     mt: 2,
                                                     backgroundColor: 'custom.highlight',
+                                                    color:"common.white",
                                                     '&:hover': {
                                                         backgroundColor: 'custom.accent'
                                                     }

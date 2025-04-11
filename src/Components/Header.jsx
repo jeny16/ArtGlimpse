@@ -9,14 +9,11 @@ import {
   IconButton,
   TextField,
   Typography,
-  useTheme,
-  Divider
+  useTheme
 } from '@mui/material';
 import { Link, useNavigate } from 'react-router-dom';
 import { styled } from '@mui/material/styles';
 import { useDispatch, useSelector } from "react-redux";
-import authService from "../actions/authService";
-import { logout } from "../store/authSlice";
 
 const StyledAppBar = styled(AppBar)(({ theme }) => ({
   backgroundColor: theme.palette.primary.main,
@@ -51,12 +48,21 @@ const IconWrapper = styled(IconButton)(({ theme }) => ({
 
 const Header = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const theme = useTheme();
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  // Get isLoggedIn from Redux
+  // Get isLoggedIn from Redux and products list for search filtering
   const isLoggedIn = useSelector((state) => state.auth.isLoggedIn);
+  const products = useSelector((state) => state.product.products);
+
+  // Filter products using the search query (simple filtering on product name)
+  const filteredProducts = searchQuery.trim()
+    ? products.filter(product =>
+      product.name.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+    : [];
 
   const renderAuthButtons = () => (
     <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 2 }}>
@@ -106,7 +112,6 @@ const Header = () => {
           <ShoppingCart size={24} />
         </IconWrapper>
       </Link>
-      {/* Redirect directly to the profile page on click */}
       <IconWrapper onClick={() => navigate("/profile")}>
         <User size={24} />
       </IconWrapper>
@@ -120,6 +125,7 @@ const Header = () => {
       onClose={() => setDrawerOpen(false)}
       sx={{ display: { xs: 'flex', md: 'none' } }}
     >
+      {/* Mobile drawer content remains unchanged */}
       <Box
         width="250px"
         role="presentation"
@@ -234,7 +240,6 @@ const Header = () => {
                   Profile
                 </StyledButton>
               </Link>
-              {/* Logout functionality is removed from header */}
             </Box>
           )}
         </Box>
@@ -267,9 +272,12 @@ const Header = () => {
               <Link to="/contact"><StyledButton>Contact</StyledButton></Link>
             </Box>
             <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 2, alignItems: 'center' }}>
+              {/* Search field with autocomplete */}
               <Box position="relative">
                 <TextField
                   size="small"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search for products, categories..."
                   variant="outlined"
                   InputProps={{
@@ -296,6 +304,40 @@ const Header = () => {
                     }
                   }}
                 />
+                {searchQuery && filteredProducts.length > 0 && (
+                  <Box
+                    sx={{
+                      position: 'absolute',
+                      top: '100%',
+                      left: 0,
+                      right: 0,
+                      backgroundColor: '#fff',
+                      zIndex: 10,
+                      boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
+                      maxHeight: 300,
+                      overflowY: 'auto'
+                    }}
+                  >
+                    {filteredProducts.map((product) => (
+                      <Box
+                        key={product.id}
+                        onClick={() => {
+                          setSearchQuery('');
+                          navigate(`/product/${product.id}`);
+                        }}
+                        sx={{
+                          padding: '8px 16px',
+                          cursor: 'pointer',
+                          '&:hover': {
+                            backgroundColor: theme.palette.action.hover
+                          }
+                        }}
+                      >
+                        <Typography variant="body2">{product.name}</Typography>
+                      </Box>
+                    ))}
+                  </Box>
+                )}
               </Box>
               {isLoggedIn ? renderUserIcons() : renderAuthButtons()}
             </Box>

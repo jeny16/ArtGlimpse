@@ -17,9 +17,9 @@ import { fetchOrders } from '../store/orderSlice';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import OrderStatusTracker from '../Components/OrderStatusTracker';
+import { getImageUrl } from '../actions/getImage';
 
 const getStatusChipColor = (status) => {
-    // Map orderStatus to appropriate Chip color
     switch (status) {
         case 'Delivered':
             return 'success';
@@ -44,13 +44,11 @@ const OrderDetailsPage = () => {
     const theme = useTheme();
     const auth = useSelector((state) => state.auth);
     const userId = auth.userData?.userId;
-    console.log("userId", auth, userId);
-    // Ensure orders are loaded on mount
+
     useEffect(() => {
         dispatch(fetchOrders(userId));
-    }, [dispatch]);
+    }, [dispatch, userId]);
 
-    // Once orders are loaded, find the matching order
     useEffect(() => {
         if (orders && orders.length > 0) {
             const found = orders.find((o) => o.id === orderId);
@@ -58,7 +56,6 @@ const OrderDetailsPage = () => {
         }
     }, [orders, orderId]);
 
-    // Helper function to format dates
     const formatDate = (dateString) => {
         if (!dateString) return '';
         const date = new Date(dateString);
@@ -87,7 +84,7 @@ const OrderDetailsPage = () => {
 
     return (
         <Container sx={{ py: 24 }}>
-            {/* Top bar with Back and Help buttons */}
+            {/* Top bar */}
             <Box
                 sx={{
                     display: 'flex',
@@ -119,7 +116,7 @@ const OrderDetailsPage = () => {
             </Box>
 
             <Paper variant="outlined" sx={{ p: 3, borderRadius: 2, boxShadow: '0 2px 12px rgba(0,0,0,0.08)' }}>
-                {/* Order Header */}
+                {/* Header */}
                 <Box sx={{ mb: 2 }}>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <Typography variant="h6" fontWeight="bold">
@@ -140,14 +137,14 @@ const OrderDetailsPage = () => {
                     </Typography>
                 </Box>
 
-                {/* Order Status Tracker */}
+                {/* Status Tracker */}
                 <Box sx={{ my: 4, px: { xs: 0, md: 2 } }}>
                     <OrderStatusTracker status={order.orderStatus} createdAt={order.createdAt} />
                 </Box>
 
                 <Divider sx={{ my: 3 }} />
 
-                {/* Order Status and Expected Timeline */}
+                {/* Shipping Info */}
                 <Box sx={{ mb: 4, p: 2, bgcolor: 'background.paper', borderRadius: 2, border: '1px solid #eee' }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                         <LocalShippingIcon sx={{ color: theme.palette.custom.highlight, mr: 1.5 }} />
@@ -155,7 +152,6 @@ const OrderDetailsPage = () => {
                             Shipping Information
                         </Typography>
                     </Box>
-
                     {order.orderStatus === 'Delivered' ? (
                         <Typography variant="body2" sx={{ ml: 4 }}>
                             Your order was delivered on {formatDate(order.createdAt)}
@@ -168,7 +164,7 @@ const OrderDetailsPage = () => {
                         <Box sx={{ ml: 4 }}>
                             <Typography variant="body2">
                                 {order.orderStatus === 'New' && 'Your order has been received and is being prepared for processing.'}
-                                {order.orderStatus === 'Processing' && 'Your order is being processed. We\'ll notify you once it ships.'}
+                                {order.orderStatus === 'Processing' && "Your order is being processed. We'll notify you once it ships."}
                                 {order.orderStatus === 'Shipped' && 'Your order is on the way! Expect delivery in 3-5 business days.'}
                             </Typography>
                             <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1 }}>
@@ -179,7 +175,7 @@ const OrderDetailsPage = () => {
                 </Box>
 
                 <Grid container spacing={3}>
-                    {/* Order Items */}
+                    {/* Items */}
                     <Grid item xs={12} md={8}>
                         <Typography variant="h6" fontWeight="bold" gutterBottom sx={{ mb: 2 }}>
                             Items in Your Order
@@ -187,12 +183,14 @@ const OrderDetailsPage = () => {
                         {order.items?.map((item, idx) => {
                             const productData = item.productData || {};
                             const images = productData.images || [];
-                            const productImage = images[0] || '/api/placeholder/120/160';
+                            const productImage = getImageUrl(images[0] || '/api/placeholder/120/160');
                             const productName = productData.name || 'Product Name';
                             const price = item.price || productData.price || 0;
+                            const productId = item.productId;
                             return (
                                 <Box
                                     key={idx}
+                                    onClick={() => navigate(`/product/${productId}`)}
                                     sx={{
                                         display: 'flex',
                                         mb: 2,
@@ -200,6 +198,7 @@ const OrderDetailsPage = () => {
                                         border: '1px solid #ddd',
                                         borderRadius: 2,
                                         bgcolor: '#fcfcfc',
+                                        cursor: "pointer",
                                         transition: 'all 0.2s ease',
                                         '&:hover': {
                                             bgcolor: '#f9f9f9',
@@ -211,7 +210,7 @@ const OrderDetailsPage = () => {
                                         <Grid item xs={3} sm={2}>
                                             <Box
                                                 component="img"
-                                                src={productImage}
+                                                src={productImage}  // ← UPDATED
                                                 alt={productName}
                                                 sx={{
                                                     width: { xs: '100px', md: '120px' },
@@ -259,6 +258,7 @@ const OrderDetailsPage = () => {
                                 </Box>
                             );
                         })}
+                        {/* Shipping Address */}
                         <Box sx={{ mt: 4 }}>
                             <Typography variant="h6" fontWeight="bold" gutterBottom>
                                 Shipping Address
@@ -279,7 +279,7 @@ const OrderDetailsPage = () => {
                         </Box>
                     </Grid>
 
-                    {/* Payment Details Sidebar */}
+                    {/* Payment Details */}
                     <Grid item xs={12} md={4}>
                         <Box
                             sx={{
@@ -329,7 +329,7 @@ const OrderDetailsPage = () => {
                             </Typography>
                         </Box>
 
-                        {/* Customer Support Box */}
+                        {/* Support Box */}
                         <Box
                             sx={{
                                 border: '1px solid',
